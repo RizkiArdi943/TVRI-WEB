@@ -1,9 +1,15 @@
 {
+  "version": 2,
   "builds": [
     {
       "src": "index.php",
-      "use": "@vercel/php",
-      "runtime": "nodejs20.x"
+      "use": "@vercel/php"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.php"
     }
   ]
 }
