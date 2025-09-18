@@ -1,0 +1,26 @@
+[
+    {
+        "id": 1,
+        "title": "Kerusakan Transmisi Palangkaraya",
+        "description": "Sinyal transmisi tidak stabil di area Palangkaraya",
+        "location": "Palangkaraya, Kalimantan Tengah",
+        "category_id": 1,
+        "priority": "High",
+        "status": "Open",
+        "reporter_id": 1,
+        "created_at": "2025-08-02 18:28:37",
+        "updated_at": "2025-08-02 18:28:37"
+    },
+    {
+        "id": 2,
+        "title": "Maintenance Perangkat Studio",
+        "description": "Perlu maintenance rutin untuk perangkat studio",
+        "location": "Studio TVRI Kalteng",
+        "category_id": 2,
+        "priority": "Medium",
+        "status": "In Progress",
+        "reporter_id": 1,
+        "created_at": "2025-07-31 18:28:37",
+        "updated_at": "2025-08-01 18:28:37"
+    }
+]

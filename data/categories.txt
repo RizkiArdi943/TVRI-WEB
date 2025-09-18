@@ -1,0 +1,22 @@
+[
+    {
+        "id": 1,
+        "name": "Transmisi",
+        "description": "Masalah transmisi sinyal"
+    },
+    {
+        "id": 2,
+        "name": "Perangkat",
+        "description": "Kerusakan perangkat"
+    },
+    {
+        "id": 3,
+        "name": "Jaringan",
+        "description": "Masalah jaringan"
+    },
+    {
+        "id": 4,
+        "name": "Lainnya",
+        "description": "Kategori lainnya"
+    }
+]

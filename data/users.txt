@@ -1,0 +1,10 @@
+[
+    {
+        "id": 1,
+        "username": "admin",
+        "password": "$2y$10$dOkasY2yJXWsXYPlAOFS4OUJUTBhpqrE6RwE5DC8vyyjFtHZp.K5W",
+        "full_name": "Administrator",
+        "email": "admin@tvri-kalteng.go.id",
+        "created_at": "2025-08-02 18:28:37"
+    }
+]
