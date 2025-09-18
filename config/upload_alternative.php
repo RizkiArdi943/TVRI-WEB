@@ -1,10 +1,10 @@
 <?php
 /**
- * Upload handler for Vercel deployment
- * Supports both local development and Vercel Blob for production
+ * Alternative upload handler for Vercel Blob
+ * Using base64 encoding approach
  */
 
-class UploadHandler {
+class AlternativeUploadHandler {
     private $isVercel;
     
     public function __construct() {
@@ -12,13 +12,13 @@ class UploadHandler {
     }
     
     /**
-     * Upload file to appropriate storage
+     * Upload file using alternative method
      */
     public function uploadFile($file, $allowedTypes = ['image/jpeg', 'image/png', 'image/webp']) {
         if (!$this->isVercel) {
             return $this->uploadToLocal($file, $allowedTypes);
         } else {
-            return $this->uploadToVercelBlob($file, $allowedTypes);
+            return $this->uploadToVercelBlobAlternative($file, $allowedTypes);
         }
     }
     
@@ -32,13 +32,11 @@ class UploadHandler {
             return ['success' => false, 'error' => $this->getUploadErrorMessage($uploadError)];
         }
         
-        // Validate file size (5MB max)
         $maxSize = 5 * 1024 * 1024;
         if ($file['size'] > $maxSize) {
             return ['success' => false, 'error' => 'Ukuran gambar maksimal 5MB'];
         }
         
-        // Validate file type
         $mimeType = null;
         if (function_exists('getimagesize')) {
             $imgInfo = @getimagesize($file['tmp_name']);
@@ -46,16 +44,14 @@ class UploadHandler {
         }
         
         if (!$mimeType || !in_array($mimeType, $allowedTypes)) {
-            return ['success' => false, 'error' => 'Format gambar tidak didukung. Gunakan JPG, PNG, atau WebP.'];
+            return ['success' => false, 'error' => 'Format gambar tidak didukung'];
         }
         
-        // Create uploads directory if not exists
         $uploadDir = __DIR__ . '/../uploads/';
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
         }
         
-        // Generate unique filename
         $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
         $extension = $allowed[$mimeType];
         $filename = uniqid('case_', true) . '.' . $extension;
@@ -69,26 +65,24 @@ class UploadHandler {
     }
     
     /**
-     * Upload to Vercel Blob (production)
+     * Alternative upload to Vercel Blob using base64
      */
-    private function uploadToVercelBlob($file, $allowedTypes) {
+    private function uploadToVercelBlobAlternative($file, $allowedTypes) {
         $token = getenv('BLOB_READ_WRITE_TOKEN');
         if (!$token) {
             return ['success' => false, 'error' => 'Blob token tidak dikonfigurasi'];
         }
         
-        // Validate file
         $uploadError = $file['error'];
         if ($uploadError !== UPLOAD_ERR_OK) {
             return ['success' => false, 'error' => $this->getUploadErrorMessage($uploadError)];
         }
         
-        $maxSize = 5 * 1024 * 1024; // 5MB
+        $maxSize = 5 * 1024 * 1024;
         if ($file['size'] > $maxSize) {
             return ['success' => false, 'error' => 'Ukuran gambar maksimal 5MB'];
         }
         
-        // Validate file type
         $mimeType = null;
         if (function_exists('getimagesize')) {
             $imgInfo = @getimagesize($file['tmp_name']);
@@ -96,31 +90,35 @@ class UploadHandler {
         }
         
         if (!$mimeType || !in_array($mimeType, $allowedTypes)) {
-            return ['success' => false, 'error' => 'Format gambar tidak didukung. Gunakan JPG, PNG, atau WebP.'];
+            return ['success' => false, 'error' => 'Format gambar tidak didukung'];
         }
         
-        // Generate unique filename
         $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
         $extension = $allowed[$mimeType];
         $filename = uniqid('case_', true) . '.' . $extension;
         
-        // Upload to Vercel Blob using multipart form data
+        // Convert file to base64
+        $fileContent = file_get_contents($file['tmp_name']);
+        $base64Content = base64_encode($fileContent);
+        
+        // Upload using JSON payload
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, 'https://api.vercel.com/v1/blob');
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer ' . $token
+            'Authorization: Bearer ' . $token,
+            'Content-Type: application/json'
         ]);
         
-        // Create multipart form data
-        $postData = [
-            'file' => new CURLFile($file['tmp_name'], $mimeType, $filename)
-        ];
+        $payload = json_encode([
+            'data' => $base64Content,
+            'contentType' => $mimeType,
+            'filename' => $filename
+        ]);
         
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -135,7 +133,7 @@ class UploadHandler {
         if ($httpCode === 200) {
             $data = json_decode($response, true);
             if ($data && isset($data['url'])) {
-                error_log('Uploaded to Vercel Blob: ' . $data['url']);
+                error_log('Uploaded to Vercel Blob (Alternative): ' . $data['url']);
                 return ['success' => true, 'path' => $data['url']];
             } else {
                 error_log('Invalid response from Vercel Blob: ' . $response);
@@ -178,7 +176,6 @@ class UploadHandler {
         if (!$this->isVercel) {
             return '/uploads/' . $filename;
         } else {
-            // For Vercel Blob, filename is already the full URL
             return $filename;
         }
     }

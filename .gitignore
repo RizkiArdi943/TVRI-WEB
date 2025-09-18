@@ -1,5 +1,6 @@
 # Test files
 test_upload.php
+test_upload_debug.php
 
 # Environment files
 .env
