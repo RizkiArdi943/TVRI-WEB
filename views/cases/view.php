@@ -71,7 +71,7 @@ $priorityLabels = [
         <div class="case-content">
             <?php if (!empty($case['image_path'])): ?>
             <div class="case-image" style="margin-bottom:16px;">
-                <img src="<?php echo htmlspecialchars($case['image_path']); ?>" alt="Lampiran Laporan" style="max-width:100%; border-radius:8px;" />
+                <img src="/<?php echo htmlspecialchars($case['image_path']); ?>" alt="Lampiran Laporan" style="max-width:100%; border-radius:8px;" />
             </div>
             <?php endif; ?>
             <div class="case-section">

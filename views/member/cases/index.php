@@ -81,7 +81,7 @@ function getPriorityInfo($priority) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laporan Saya - TVRI Kalteng</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
     <style>
         .member-header {
             background: linear-gradient(135deg, #1e40af, #3b82f6);
@@ -403,7 +403,7 @@ function getPriorityInfo($priority) {
                         
                         <?php if (!empty($case['image_path'])): ?>
                             <div class="case-image">
-                                <img src="uploads/<?php echo htmlspecialchars($case['image_path']); ?>" 
+                                <img src="/uploads/<?php echo htmlspecialchars($case['image_path']); ?>" 
                                      alt="Gambar laporan" 
                                      style="max-width: 200px; max-height: 150px; border-radius: 8px; margin-top: 10px;">
                             </div>

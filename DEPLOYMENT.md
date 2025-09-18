@@ -33,9 +33,17 @@
 ## Perubahan yang Dilakukan
 
 1. **Perbaikan Path Relatif**: Semua `require_once` dan `include` sekarang menggunakan `__DIR__` untuk path absolut
-2. **Konfigurasi Vercel**: Routing diperbaiki untuk menangani semua request
-3. **Environment Variables**: Database connection sekarang mendukung environment variables
-4. **File Konfigurasi**: Ditambahkan `.vercelignore` dan `php.ini`
+2. **Konfigurasi Vercel**: Routing diperbaiki untuk menangani semua request dan assets
+3. **Perbaikan Path Assets**: Semua path CSS, JS, dan uploads menggunakan path absolut dengan `/`
+4. **Environment Variables**: Database connection sekarang mendukung environment variables
+5. **File Konfigurasi**: Ditambahkan `.vercelignore` dan `php.ini`
+
+## Perbaikan CSS yang Dilakukan
+
+- Mengubah semua `href="assets/css/style.css"` menjadi `href="/assets/css/style.css"`
+- Mengubah semua `src="assets/js/app.js"` menjadi `src="/assets/js/app.js"`
+- Mengubah semua path uploads menjadi path absolut dengan `/`
+- Menambahkan routing khusus untuk assets di `vercel.json`
 
 ## Troubleshooting
 
