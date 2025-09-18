@@ -1,6 +1,11 @@
 # Test files
 test_upload.php
 test_upload_debug.php
+test_local_blob.php
+quick_test.php
+test_correct_endpoint.php
+test_vercel_sdk.php
+test_simple_upload.php
 
 # Environment files
 .env

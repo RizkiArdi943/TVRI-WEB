@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/auth.php';
-require_once __DIR__ . '/../config/upload.php';
+require_once __DIR__ . '/../config/upload_simple.php';
 
 // Initialize session
 if (session_status() === PHP_SESSION_NONE) {
@@ -14,7 +14,7 @@ class CasesController {
 
     public function __construct() {
         $this->db = new Database();
-        $this->uploadHandler = new UploadHandler();
+        $this->uploadHandler = new SimpleVercelBlobUploadHandler();
     }
 
     /**

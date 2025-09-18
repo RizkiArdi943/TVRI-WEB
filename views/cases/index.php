@@ -139,7 +139,7 @@ foreach ($cases as $index => $case) {
                     <div class="case-content">
                         <?php if (!empty($case['image_path'])): ?>
                         <div class="case-thumb" style="margin-bottom:8px;">
-                            <img src="/<?php echo htmlspecialchars($case['image_path']); ?>" alt="Lampiran" style="max-width:100%; height:auto; border-radius:6px;" />
+                            <img src="<?php echo htmlspecialchars($case['image_path']); ?>" alt="Lampiran" style="max-width:100%; height:auto; border-radius:6px;" />
                         </div>
                         <?php endif; ?>
                         <h4>

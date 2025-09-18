@@ -403,7 +403,7 @@ function getPriorityInfo($priority) {
                         
                         <?php if (!empty($case['image_path'])): ?>
                             <div class="case-image">
-                                <img src="/uploads/<?php echo htmlspecialchars($case['image_path']); ?>" 
+                                <img src="<?php echo htmlspecialchars($case['image_path']); ?>" 
                                      alt="Gambar laporan" 
                                      style="max-width: 200px; max-height: 150px; border-radius: 8px; margin-top: 10px;">
                             </div>

@@ -143,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label for="image">Gambar (opsional)</label>
                 <?php if (!empty($case['image_path'])): ?>
                     <div class="image-preview">
-                        <img src="/<?php echo htmlspecialchars($case['image_path']); ?>" alt="Lampiran" style="max-width: 200px; display:block; margin-bottom:8px;" />
+                        <img src="<?php echo htmlspecialchars($case['image_path']); ?>" alt="Lampiran" style="max-width: 200px; display:block; margin-bottom:8px;" />
                     </div>
                 <?php endif; ?>
                 <input type="file" id="image" name="image" accept="image/*">
