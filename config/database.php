@@ -1,15 +1,16 @@
 <?php
 class Database {
     private $pdo;
-    private $host = 'localhost';
-    private $dbname = 'tvri_ticketing';
-    private $username = 'root';
-    private $password = 'password';
+    private $host = 'gp9fn8.h.filess.io';
+    private $port = '3307';
+    private $dbname = 'tvri_struggleno';
+    private $username = 'tvri_struggleno';
+    private $password = '909602de3cabb6bdcf8271209cb4a6a12e682157';
 
     public function __construct() {
         try {
             $this->pdo = new PDO(
-                "mysql:host={$this->host};dbname={$this->dbname};charset=utf8mb4",
+                "mysql:host={$this->host};port={$this->port};dbname={$this->dbname};charset=utf8mb4",
                 $this->username,
                 $this->password,
                 [
