@@ -1,11 +1,13 @@
 <?php
-session_start();
 // Enable output buffering so nested pages can safely call header() redirects
 ob_start();
 
 // Database connection
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/config/auth.php';
+
+// Start secure session
+startSecureSession();
 
 // Simple routing
 $page = $_GET['page'] ?? 'landing';

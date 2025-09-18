@@ -3,10 +3,8 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/auth.php';
 require_once __DIR__ . '/../config/upload_simple.php';
 
-// Initialize session
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+// Initialize secure session
+startSecureSession();
 
 class CasesController {
     private $db;

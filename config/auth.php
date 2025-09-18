@@ -1,32 +1,47 @@
 <?php
 require_once __DIR__ . '/database.php';
+require_once __DIR__ . '/session.php';
 
 function isLoggedIn() {
-    // Start session if not already started
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
+    // Start secure session
+    startSecureSession();
+    
+    // Check if session is valid
+    if (!isSessionValid()) {
+        return false;
     }
-
+    
+    // Extend session on each check
+    extendSession();
+    
     return isset($_SESSION['user_id']);
 }
 
 function login($username, $password) {
     global $db;
 
-    // Start session if not already started
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
+    // Start secure session
+    startSecureSession();
 
     $users = $db->findAll('users', ['username' => $username]);
     $user = $users[0] ?? null;
 
     if ($user && password_verify($password, $user['password'])) {
+        // Clear any existing session data
+        $_SESSION = [];
+        
+        // Set user data
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['full_name'] = $user['full_name'];
         $_SESSION['role'] = $user['role'];
-        $_SESSION['user_role'] = $user['role']; // Add this for consistency
+        $_SESSION['user_role'] = $user['role'];
+        $_SESSION['login_time'] = time();
+        $_SESSION['last_activity'] = time();
+        
+        // Regenerate session ID for security
+        session_regenerate_id(true);
+        
         return true;
     }
 
@@ -34,17 +49,12 @@ function login($username, $password) {
 }
 
 function logout() {
-    // Start session if not already started
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-
     // Clear session data
-    $_SESSION = [];
-
-    // Destroy session
-    if (session_status() === PHP_SESSION_ACTIVE) {
-        session_destroy();
+    clearSession();
+    
+    // Clear session cookie
+    if (isset($_COOKIE[session_name()])) {
+        setcookie(session_name(), '', time() - 3600, '/');
     }
 
     header('Location: index.php?page=login');
