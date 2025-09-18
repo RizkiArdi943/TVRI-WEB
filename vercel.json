@@ -5,10 +5,6 @@
     }
   },
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/index.php" },
-    { "src": "/(.*)", "dest": "/index.php" }
-  ],
-  "env": {
-    "VERCEL": "1"
-  }
+    { "src": "/(.*)", "dest": "/api/index.php" }
+  ]
 }
