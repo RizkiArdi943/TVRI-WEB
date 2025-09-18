@@ -8,5 +8,9 @@
     { "src": "/assets/(.*)", "dest": "/assets/$1" },
     { "src": "/uploads/(.*)", "dest": "/uploads/$1" },
     { "src": "/(.*)", "dest": "/api/index.php" }
-  ]
+  ],
+  "env": {
+    "VERCEL": "1",
+    "BLOB_READ_WRITE_TOKEN": "vercel_blob_rw_PXHNBjjgr6iCU3vK_7XZhMTBIn4HLNtIwjDnHZOWuyjgWAl"
+  }
 }

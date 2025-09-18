@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/auth.php';
+require_once __DIR__ . '/../config/upload.php';
 
 // Initialize session
 if (session_status() === PHP_SESSION_NONE) {
@@ -9,9 +10,11 @@ if (session_status() === PHP_SESSION_NONE) {
 
 class MemberCasesController {
     private $db;
+    private $uploadHandler;
 
     public function __construct() {
         $this->db = new Database();
+        $this->uploadHandler = new UploadHandler();
     }
 
     /**
@@ -41,46 +44,14 @@ class MemberCasesController {
                 // Handle image upload (optional)
                 $imagePath = null;
                 if (isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE) {
-                    $uploadError = $_FILES['image']['error'];
-
-                    if ($uploadError === UPLOAD_ERR_OK) {
-                        $maxSize = 5 * 1024 * 1024; // 5MB
-                        if (($_FILES['image']['size'] ?? 0) > $maxSize) {
-                            $error = 'Ukuran gambar maksimal 5MB';
-                        } else {
-                            $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
-                            $mimeType = null;
-
-                            if (function_exists('getimagesize')) {
-                                $imgInfo = @getimagesize($_FILES['image']['tmp_name']);
-                                $mimeType = $imgInfo['mime'] ?? null;
-                            }
-
-                            if (!$mimeType || !isset($allowed[$mimeType])) {
-                                $error = 'Format gambar tidak didukung. Gunakan JPG, PNG, atau WebP.';
-                            } else {
-                                // Create uploads directory if not exists
-                                $uploadDir = __DIR__ . '/../uploads/';
-                                if (!is_dir($uploadDir)) {
-                                    mkdir($uploadDir, 0755, true);
-                                }
-
-                                // Generate unique filename
-                                $extension = $allowed[$mimeType];
-                                $filename = uniqid('case_', true) . '.' . $extension;
-                                $targetPath = $uploadDir . $filename;
-
-                                if (move_uploaded_file($_FILES['image']['tmp_name'], $targetPath)) {
-                                    $imagePath = $filename;
-                                    error_log('Image uploaded successfully: ' . $filename);
-                                } else {
-                                    $error = 'Gagal mengupload gambar.';
-                                    error_log('Failed to move uploaded file to: ' . $targetPath);
-                                }
-                            }
-                        }
-                    } elseif ($uploadError !== UPLOAD_ERR_NO_FILE) {
-                        $error = 'Terjadi kesalahan saat upload gambar: ' . $this->getUploadErrorMessage($uploadError);
+                    $uploadResult = $this->uploadHandler->uploadFile($_FILES['image']);
+                    
+                    if ($uploadResult['success']) {
+                        $imagePath = $uploadResult['path'];
+                        error_log('Image uploaded successfully: ' . $imagePath);
+                    } else {
+                        $error = $uploadResult['error'];
+                        error_log('Upload failed: ' . $error);
                     }
                 }
 

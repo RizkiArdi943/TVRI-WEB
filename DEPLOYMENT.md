@@ -45,9 +45,26 @@
 - Mengubah semua path uploads menjadi path absolut dengan `/`
 - Menambahkan routing khusus untuk assets di `vercel.json`
 
+## Upload Gambar
+
+### Status Konfigurasi
+- ✅ **Development**: Upload ke folder `uploads/` lokal
+- ✅ **Production**: Upload ke Vercel Blob (sudah dikonfigurasi)
+
+### Environment Variables
+Token Vercel Blob sudah dikonfigurasi di `vercel.json`:
+```
+BLOB_READ_WRITE_TOKEN=vercel_blob_rw_PXHNBjjgr6iCU3vK_7XZhMTBIn4HLNtIwjDnHZOWuyjgWAl
+```
+
+### Testing
+Untuk test konfigurasi upload, akses: `https://your-domain.vercel.app/test_upload.php`
+**PENTING**: Hapus file `test_upload.php` setelah testing selesai.
+
 ## Troubleshooting
 
 Jika masih ada error:
 1. Periksa environment variables sudah di-set dengan benar
 2. Pastikan database server dapat diakses dari Vercel
 3. Periksa logs di Vercel Dashboard untuk error detail
+4. Untuk upload gambar, konfigurasi Vercel Blob atau Cloudinary
