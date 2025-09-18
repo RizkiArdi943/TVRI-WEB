@@ -43,7 +43,15 @@ class BrowserAuth {
     async handleLogin(e) {
         e.preventDefault();
         
-        const formData = new FormData(e.target);
+        const form = e.target;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        
+        // Show loading state
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+        submitBtn.disabled = true;
+        
+        const formData = new FormData(form);
         const username = formData.get('username');
         const password = formData.get('password');
         
@@ -60,7 +68,12 @@ class BrowserAuth {
                 })
             });
             
-            const result = await response.json();
+            let result;
+            try {
+                result = await response.json();
+            } catch (parseError) {
+                throw new Error('Invalid response from server');
+            }
             
             if (result.success) {
                 // Save auth data to localStorage
@@ -72,13 +85,17 @@ class BrowserAuth {
                 // Redirect to dashboard
                 setTimeout(() => {
                     window.location.href = 'index.php?page=dashboard';
-                }, 1000);
+                }, 1500);
             } else {
-                this.showMessage(result.message || 'Login gagal!', 'error');
+                this.showMessage(result.message || 'Username atau password salah!', 'error');
             }
         } catch (error) {
             console.error('Login error:', error);
             this.showMessage('Terjadi kesalahan saat login!', 'error');
+        } finally {
+            // Reset button state
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
         }
     }
 
@@ -250,6 +267,12 @@ class BrowserAuth {
      * Show message to user
      */
     showMessage(message, type = 'info') {
+        // Clear existing messages first
+        this.clearMessages();
+        
+        // Add CSS if not exists
+        this.addToastCSS();
+        
         // Create toast notification
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
@@ -284,6 +307,100 @@ class BrowserAuth {
                 toast.parentNode.removeChild(toast);
             }
         });
+    }
+    
+    /**
+     * Clear all existing messages
+     */
+    clearMessages() {
+        const container = document.querySelector('.toast-container');
+        if (container) {
+            container.innerHTML = '';
+        }
+    }
+    
+    /**
+     * Add toast CSS styles
+     */
+    addToastCSS() {
+        if (document.getElementById('toast-css')) return;
+        
+        const style = document.createElement('style');
+        style.id = 'toast-css';
+        style.textContent = `
+            .toast-container {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+            }
+            
+            .toast {
+                min-width: 300px;
+                padding: 16px 20px;
+                margin-bottom: 10px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                font-weight: 500;
+                font-size: 14px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                animation: slideInRight 0.3s ease-out;
+            }
+            
+            .toast.success {
+                background: linear-gradient(135deg, #10b981, #059669);
+                color: white;
+                border-left: 4px solid #047857;
+            }
+            
+            .toast.error {
+                background: linear-gradient(135deg, #ef4444, #dc2626);
+                color: white;
+                border-left: 4px solid #b91c1c;
+            }
+            
+            .toast.info {
+                background: linear-gradient(135deg, #3b82f6, #2563eb);
+                color: white;
+                border-left: 4px solid #1d4ed8;
+            }
+            
+            .toast-content {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .toast-close {
+                background: none;
+                border: none;
+                color: white;
+                font-size: 18px;
+                cursor: pointer;
+                padding: 0;
+                opacity: 0.8;
+                transition: opacity 0.2s;
+            }
+            
+            .toast-close:hover {
+                opacity: 1;
+            }
+            
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        
+        document.head.appendChild(style);
     }
 }
 

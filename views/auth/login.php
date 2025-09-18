@@ -1,19 +1,5 @@
 <?php
-require_once __DIR__ . '/../../config/browser_auth.php';
-
-$error = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'] ?? '';
-    $password = $_POST['password'] ?? '';
-    
-    if (login($username, $password)) {
-        header('Location: index.php?page=dashboard');
-        exit();
-    } else {
-        $error = 'Username atau password salah!';
-    }
-}
+// No server-side login processing - handled by JavaScript
 ?>
 
 <!DOCTYPE html>
@@ -36,12 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <p>Case Reporting System</p>
             </div>
             
-            <?php if ($error): ?>
-                <div class="alert alert-error">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <?php echo $error; ?>
-                </div>
-            <?php endif; ?>
+            <!-- Error messages will be shown by JavaScript -->
             
             <form id="loginForm" class="login-form">
                 <div class="form-group">
@@ -65,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </form>
             
             <div class="login-divider">
-                <span>atau</span>
+                <br/>
             </div>
             
             <div class="register-section">
