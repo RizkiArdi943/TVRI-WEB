@@ -4,8 +4,8 @@ session_start();
 ob_start();
 
 // Database connection
-require_once 'config/database.php';
-require_once 'config/auth.php';
+require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/config/auth.php';
 
 // Simple routing
 $page = $_GET['page'] ?? 'landing';
@@ -19,29 +19,29 @@ if (!isLoggedIn() && $page !== 'login' && $page !== 'landing' && $page !== 'regi
 // Route to appropriate page
 switch ($page) {
     case 'landing':
-        include 'views/landing-simple.php';
+        include __DIR__ . '/views/landing-simple.php';
         break;
     case 'login':
-        include 'views/auth/login.php';
+        include __DIR__ . '/views/auth/login.php';
         break;
     case 'register':
-        include 'views/auth/register.php';
+        include __DIR__ . '/views/auth/register.php';
         break;
     case 'dashboard':
         // Check user role and redirect accordingly
         if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
             // Include header and footer for authenticated pages
-            include 'views/layouts/header.php';
-            include 'views/dashboard/index.php';
-            include 'views/layouts/footer.php';
+            include __DIR__ . '/views/layouts/header.php';
+            include __DIR__ . '/views/dashboard/index.php';
+            include __DIR__ . '/views/layouts/footer.php';
         } else {
             // Member dashboard
-            include 'views/member/dashboard.php';
+            include __DIR__ . '/views/member/dashboard.php';
         }
         break;
     case 'member/cases/create':
         if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'user') {
-            include 'views/member/cases/create.php';
+            include __DIR__ . '/views/member/cases/create.php';
         } else {
             header('Location: index.php?page=login');
             exit();
@@ -49,7 +49,7 @@ switch ($page) {
         break;
     case 'member/cases':
         if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'user') {
-            include 'views/member/cases/index.php';
+            include __DIR__ . '/views/member/cases/index.php';
         } else {
             header('Location: index.php?page=login');
             exit();
@@ -57,50 +57,50 @@ switch ($page) {
         break;
     case 'member/profile':
         if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'user') {
-            include 'views/member/profile.php';
+            include __DIR__ . '/views/member/profile.php';
         } else {
             header('Location: index.php?page=login');
             exit();
         }
         break;
     case 'cases':
-        include 'views/layouts/header.php';
-        include 'views/cases/index.php';
-        include 'views/layouts/footer.php';
+        include __DIR__ . '/views/layouts/header.php';
+        include __DIR__ . '/views/cases/index.php';
+        include __DIR__ . '/views/layouts/footer.php';
         break;
     case 'cases/create':
-        include 'views/layouts/header.php';
-        include 'views/cases/create.php';
-        include 'views/layouts/footer.php';
+        include __DIR__ . '/views/layouts/header.php';
+        include __DIR__ . '/views/cases/create.php';
+        include __DIR__ . '/views/layouts/footer.php';
         break;
     case 'cases/edit':
-        include 'views/layouts/header.php';
-        include 'views/cases/edit.php';
-        include 'views/layouts/footer.php';
+        include __DIR__ . '/views/layouts/header.php';
+        include __DIR__ . '/views/cases/edit.php';
+        include __DIR__ . '/views/layouts/footer.php';
         break;
     case 'cases/view':
-        include 'views/layouts/header.php';
-        include 'views/cases/view.php';
-        include 'views/layouts/footer.php';
+        include __DIR__ . '/views/layouts/header.php';
+        include __DIR__ . '/views/cases/view.php';
+        include __DIR__ . '/views/layouts/footer.php';
         break;
     case 'cases/delete':
         // Controller-only route (no layout)
-        include 'controllers/cases/delete.php';
+        include __DIR__ . '/controllers/cases/delete.php';
         break;
     case 'profile':
-        include 'views/layouts/header.php';
-        include 'views/profile/index.php';
-        include 'views/layouts/footer.php';
+        include __DIR__ . '/views/layouts/header.php';
+        include __DIR__ . '/views/profile/index.php';
+        include __DIR__ . '/views/layouts/footer.php';
         break;
     case 'export':
         // Controller-only route (no layout)
-        include 'controllers/export.php';
+        include __DIR__ . '/controllers/export.php';
         break;
     case 'error':
-        include 'views/error.php';
+        include __DIR__ . '/views/error.php';
         break;
     case 'logout':
-        include 'controllers/logout.php';
+        include __DIR__ . '/controllers/logout.php';
         break;
     default:
         header('Location: index.php?page=landing');

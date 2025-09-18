@@ -1,0 +1,20 @@
+# Ignore development files
+*.log
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Ignore local database files
+database/*.db
+database/*.sqlite
+database/*.sqlite3
+
+# Ignore uploads directory (if not needed for deployment)
+uploads/
+
+# Ignore cookies
+cookies.txt
+
+# Ignore data files
+data/*.txt

@@ -9,6 +9,16 @@ class Database {
 
     public function __construct() {
         try {
+            // Check if we're in Vercel environment
+            if (getenv('VERCEL')) {
+                // Use environment variables for Vercel
+                $this->host = getenv('DB_HOST') ?: $this->host;
+                $this->port = getenv('DB_PORT') ?: $this->port;
+                $this->dbname = getenv('DB_NAME') ?: $this->dbname;
+                $this->username = getenv('DB_USER') ?: $this->username;
+                $this->password = getenv('DB_PASS') ?: $this->password;
+            }
+            
             $this->pdo = new PDO(
                 "mysql:host={$this->host};port={$this->port};dbname={$this->dbname};charset=utf8mb4",
                 $this->username,
@@ -20,6 +30,7 @@ class Database {
                 ]
             );
         } catch (PDOException $e) {
+            error_log("Database connection failed: " . $e->getMessage());
             die("Database connection failed: " . $e->getMessage());
         }
     }
