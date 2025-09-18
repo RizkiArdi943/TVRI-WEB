@@ -24,7 +24,7 @@
                     <span>TVRI Kalteng</span>
                 </div>
                 <div class="user-info">
-                    <span class="user-name"><?php echo $_SESSION['full_name']; ?></span>
+                    <span class="user-name">Loading...</span>
                     <div class="user-avatar">
                         <i class="fas fa-user"></i>
                     </div>

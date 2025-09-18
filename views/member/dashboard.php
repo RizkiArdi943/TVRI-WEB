@@ -500,7 +500,7 @@ function getStatusInfo($status) {
                         </div>
                     </a>
                     
-                    <a href="index.php?page=logout" class="action-btn">
+                    <a href="#" class="action-btn logout-btn">
                         <div class="action-icon" style="background: #ef4444;">
                             <i class="fas fa-sign-out-alt"></i>
                         </div>

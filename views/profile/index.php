@@ -178,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="action-content">
                 <h4>Logout</h4>
                 <p>Keluar dari sistem</p>
-                <a href="index.php?page=logout" class="btn btn-danger">
+                <a href="#" class="btn btn-danger logout-btn">
                     <i class="fas fa-sign-out-alt"></i>
                     Logout
                 </a>

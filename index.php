@@ -4,10 +4,12 @@ ob_start();
 
 // Database connection
 require_once __DIR__ . '/config/database.php';
-require_once __DIR__ . '/config/auth.php';
+require_once __DIR__ . '/config/browser_auth.php';
 
-// Start secure session
-startSecureSession();
+// Start session for compatibility
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Simple routing
 $page = $_GET['page'] ?? 'landing';

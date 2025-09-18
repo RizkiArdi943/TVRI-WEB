@@ -1,10 +1,12 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../config/auth.php';
+require_once __DIR__ . '/../config/browser_auth.php';
 require_once __DIR__ . '/../config/upload_simple.php';
 
-// Initialize secure session
-startSecureSession();
+// Initialize session
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 class MemberCasesController {
     private $db;

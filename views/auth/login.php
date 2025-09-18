@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             <?php endif; ?>
             
-            <form method="POST" class="login-form">
+            <form id="loginForm" class="login-form">
                 <div class="form-group">
                     <div class="input-group">
                         <i class="fas fa-user"></i>
@@ -81,5 +81,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div> -->
         </div>
     </div>
+    
+    <!-- Include authentication script -->
+    <script src="/assets/js/auth.js"></script>
 </body>
 </html> 
