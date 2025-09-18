@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../../config/database.php';
-require_once __DIR__ . '/../../config/auth.php';
+require_once __DIR__ . '/../../config/browser_auth.php';
 
 // Ensure user is logged in
 if (!isLoggedIn()) {
