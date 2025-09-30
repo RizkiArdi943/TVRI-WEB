@@ -1,34 +1,40 @@
 <?php
 class Database {
     private $pdo;
-    private $host = 'gp9fn8.h.filess.io';
-    private $port = '3307';
-    private $dbname = 'tvri_struggleno';
-    private $username = 'tvri_struggleno';
-    private $password = '909602de3cabb6bdcf8271209cb4a6a12e682157';
+    private $host = 'tvri-ticketing-tvripalangkaraya-8cb6.l.aivencloud.com';
+    private $port = '25125';
+    private $dbname = 'defaultdb';
+    private $username = 'avnadmin';
+    private $password = 'AVNS_6jUpZP61sEbAt9SFLxG';
+    private $sslCa = 'ca.pem'; // pastikan file ca.pem ada di root project
 
     public function __construct() {
         try {
-            // Check if we're in Vercel environment
+            // Override dengan ENV jika di Vercel
             if (getenv('VERCEL')) {
-                // Use environment variables for Vercel
-                $this->host = getenv('DB_HOST') ?: $this->host;
-                $this->port = getenv('DB_PORT') ?: $this->port;
-                $this->dbname = getenv('DB_NAME') ?: $this->dbname;
+                $this->host     = getenv('DB_HOST') ?: $this->host;
+                $this->port     = getenv('DB_PORT') ?: $this->port;
+                $this->dbname   = getenv('DB_NAME') ?: $this->dbname;
                 $this->username = getenv('DB_USER') ?: $this->username;
                 $this->password = getenv('DB_PASS') ?: $this->password;
+                $this->sslCa    = getenv('DB_SSL_CA') ?: $this->sslCa;
             }
-            
-            $this->pdo = new PDO(
-                "mysql:host={$this->host};port={$this->port};dbname={$this->dbname};charset=utf8mb4",
-                $this->username,
-                $this->password,
-                [
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                    PDO::ATTR_EMULATE_PREPARES => false,
-                ]
-            );
+
+            $dsn = "mysql:host={$this->host};port={$this->port};dbname={$this->dbname};charset=utf8mb4";
+
+            $options = [
+                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES   => false,
+            ];
+
+            // tambahkan SSL jika file ada
+            if (file_exists($this->sslCa)) {
+                $options[PDO::MYSQL_ATTR_SSL_CA] = $this->sslCa;
+            }
+
+            $this->pdo = new PDO($dsn, $this->username, $this->password, $options);
+
         } catch (PDOException $e) {
             error_log("Database connection failed: " . $e->getMessage());
             die("Database connection failed: " . $e->getMessage());
