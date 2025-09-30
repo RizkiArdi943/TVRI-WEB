@@ -3,7 +3,7 @@ class Database {
     private $pdo;
     private $host = 'tvri-ticketing-tvripalangkaraya-8cb6.l.aivencloud.com';
     private $port = '25125';
-    private $dbname = 'defaultdb';
+    private $dbname = 'tvri-ticketing';
     private $username = 'avnadmin';
     private $password = 'AVNS_6jUpZP61sEbAt9SFLxG';
     private $sslCa = 'ca.pem'; // pastikan file ca.pem ada di root project
