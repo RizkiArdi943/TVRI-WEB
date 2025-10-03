@@ -100,6 +100,10 @@ foreach ($cases as $index => $case) {
                     <i class="fas fa-download"></i>
                     Export CSV
                 </button>
+                <button type="button" id="exportExcelBtn" class="btn btn-success">
+                    <i class="fas fa-file-excel"></i>
+                    Export Excel
+                </button>
             </div>
         </div>
     </div>
@@ -515,6 +519,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const sortFilter = document.getElementById('sortFilter');
     const resetBtn = document.getElementById('resetBtn');
     const exportBtn = document.getElementById('exportBtn');
+    const exportExcelBtn = document.getElementById('exportExcelBtn');
     
     // Search with debounce
     searchInput.addEventListener('input', function() {
@@ -561,6 +566,29 @@ document.addEventListener('DOMContentLoaded', function() {
             exportBtn.disabled = false;
             exportBtn.classList.remove('loading');
             showToast('Export CSV berhasil', 'success');
+        }, 2000);
+    });
+
+    // Export Excel
+    exportExcelBtn.addEventListener('click', function() {
+        const searchTerm = searchInput.value;
+        const category = categoryFilter.value;
+        const status = statusFilter.value;
+        const sort = sortFilter.value;
+
+        const exportUrl = `index.php?page=export&type=excel&search=${encodeURIComponent(searchTerm)}&category=${encodeURIComponent(category)}&status=${encodeURIComponent(status)}&sort=${encodeURIComponent(sort)}`;
+
+        exportExcelBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+        exportExcelBtn.disabled = true;
+        exportExcelBtn.classList.add('loading');
+
+        window.location.href = exportUrl;
+
+        setTimeout(() => {
+            exportExcelBtn.innerHTML = '<i class="fas fa-file-excel"></i> Export Excel';
+            exportExcelBtn.disabled = false;
+            exportExcelBtn.classList.remove('loading');
+            showToast('Export Excel berhasil', 'success');
         }, 2000);
     });
 });
