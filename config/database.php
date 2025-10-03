@@ -1,6 +1,8 @@
 <?php
 class Database {
     private $pdo;
+    // server mode: 'local' atau 'vercel'
+    private $server = 'vercel';
     private $host = 'tvri-ticketing-tvripalangkaraya-8cb6.l.aivencloud.com';
     private $port = '25125';
     private $dbname = 'tvri-ticketing';
@@ -10,28 +12,15 @@ class Database {
 
     public function __construct() {
         try {
-            // Override dengan ENV jika di Vercel
-            if (getenv('VERCEL')) {
-                $this->host     = getenv('DB_HOST') ?: $this->host;
-                $this->port     = getenv('DB_PORT') ?: $this->port;
-                $this->dbname   = getenv('DB_NAME') ?: $this->dbname;
-                $this->username = getenv('DB_USER') ?: $this->username;
-                $this->password = getenv('DB_PASS') ?: $this->password;
-                $this->sslCa    = getenv('DB_SSL_CA') ?: $this->sslCa;
+            $this->detectServer();
+            if ($this->server === 'local') {
+                $this->configureLocal();
+            } else {
+                $this->configureVercel();
             }
 
-            $dsn = "mysql:host={$this->host};port={$this->port};dbname={$this->dbname};charset=utf8mb4";
-
-            $options = [
-                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES   => false,
-            ];
-
-            // tambahkan SSL jika file ada
-            if (file_exists($this->sslCa)) {
-                $options[PDO::MYSQL_ATTR_SSL_CA] = $this->sslCa;
-            }
+            $dsn = $this->buildDsn();
+            $options = $this->buildPdoOptions();
 
             $this->pdo = new PDO($dsn, $this->username, $this->password, $options);
 
@@ -39,6 +28,53 @@ class Database {
             error_log("Database connection failed: " . $e->getMessage());
             die("Database connection failed: " . $e->getMessage());
         }
+    }
+
+    private function detectServer() {
+        $envServer = getenv('SERVER_ENV'); // 'local' atau 'vercel'
+        if ($envServer) {
+            $this->server = strtolower($envServer);
+        }
+    }
+
+    private function configureLocal() {
+        $this->host     = '127.0.0.1';
+        $this->port     = '3306';
+        $this->dbname   = 'tvri_ticketing';
+        $this->username = 'root';
+        $this->password = '';
+        $this->sslCa    = null; // tidak menggunakan SSL untuk local
+    }
+
+    private function configureVercel() {
+        // gunakan konfigurasi existing sebagai default,
+        // lalu override dengan ENV jika berjalan di Vercel
+        if (getenv('VERCEL')) {
+            $this->host     = getenv('DB_HOST') ?: $this->host;
+            $this->port     = getenv('DB_PORT') ?: $this->port;
+            $this->dbname   = getenv('DB_NAME') ?: $this->dbname;
+            $this->username = getenv('DB_USER') ?: $this->username;
+            $this->password = getenv('DB_PASS') ?: $this->password;
+            $this->sslCa    = getenv('DB_SSL_CA') ?: $this->sslCa;
+        }
+    }
+
+    private function buildDsn() {
+        return "mysql:host={$this->host};port={$this->port};dbname={$this->dbname};charset=utf8mb4";
+    }
+
+    private function buildPdoOptions() {
+        $options = [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+        ];
+
+        if (!empty($this->sslCa) && file_exists($this->sslCa)) {
+            $options[PDO::MYSQL_ATTR_SSL_CA] = $this->sslCa;
+        }
+
+        return $options;
     }
     
     // Generic methods for CRUD operations
@@ -207,4 +243,4 @@ class PreparedStatement {
 
 // Initialize database
 $database = new Database();
-$db = $database; 
+$db = $database;
