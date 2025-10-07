@@ -124,16 +124,16 @@ class BrowserAuth {
             // Show message
             this.showMessage('Logout berhasil!', 'success');
             
-            // Redirect to login
+            // Redirect to landing page
             setTimeout(() => {
-                window.location.href = 'index.php?page=login';
+                window.location.href = 'index.php?page=landing';
             }, 1000);
             
         } catch (error) {
             console.error('Logout error:', error);
             // Clear data anyway
             this.clearAuthData();
-            window.location.href = 'index.php?page=login';
+            window.location.href = 'index.php?page=landing';
         }
     }
 

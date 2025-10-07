@@ -27,11 +27,6 @@ class DashboardStats {
         return $result[0]['total'] ?? 0;
     }
     
-    public function getPendingCases() {
-        $sql = "SELECT COUNT(*) as total FROM cases WHERE status = 'pending'";
-        $result = $this->db->query($sql);
-        return $result[0]['total'] ?? 0;
-    }
     
     public function getRecentActivities($limit = 5) {
         $sql = "SELECT c.*, cat.name as category_name, u.full_name as reporter_name 
@@ -48,7 +43,6 @@ class DashboardStats {
             'total_cases' => $this->getTotalCases(),
             'today_cases' => $this->getTodayCases(),
             'month_cases' => $this->getThisMonthCases(),
-            'pending_cases' => $this->getPendingCases(),
             'recent_activities' => $this->getRecentActivities()
         ];
     }

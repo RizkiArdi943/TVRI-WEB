@@ -502,11 +502,6 @@ function getStatusColor($status) {
                     <div class="stat-number"><?php echo $dashboardData['month_cases']; ?></div>
                     <div class="stat-label">Laporan Bulan Ini</div>
                 </div>
-                
-                <div class="stat-card">
-                    <div class="stat-number"><?php echo $dashboardData['pending_cases']; ?></div>
-                    <div class="stat-label">Laporan Pending</div>
-                </div>
             </div>
             
             <!-- Quick Actions -->

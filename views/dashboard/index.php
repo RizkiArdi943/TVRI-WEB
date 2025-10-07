@@ -53,7 +53,11 @@ foreach ($categories as $category) {
     ];
 }
 
-// Get recent cases
+// Get recent cases - sort by created_at DESC first
+usort($cases, function($a, $b) {
+    return strtotime($b['created_at']) - strtotime($a['created_at']);
+});
+
 $recentCases = array_slice($cases, 0, 5);
 foreach ($recentCases as $index => $case) {
     $category = $db->find('categories', $case['category_id']);
