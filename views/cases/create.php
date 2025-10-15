@@ -60,24 +60,41 @@ error_log('Error: ' . $error);
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="location">Lokasi *</label>
-                    <input type="text" id="location" name="location" value="<?php echo htmlspecialchars($_POST['location'] ?? ''); ?>" required>
+                    <label for="equipment_name">Nama Peralatan *</label>
+                    <input type="text" id="equipment_name" name="equipment_name" value="<?php echo htmlspecialchars($_POST['equipment_name'] ?? ''); ?>" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Kategori</label>
-                    <input type="text" value="Transmisi" disabled>
-                    <input type="hidden" name="category_id" value="1">
+                    <label for="model">Model *</label>
+                    <input type="text" id="model" name="model" value="<?php echo htmlspecialchars($_POST['model'] ?? ''); ?>" required>
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="priority">Prioritas</label>
-                    <select id="priority" name="priority">
-                        <option value="low" <?php echo ($_POST['priority'] ?? 'medium') === 'low' ? 'selected' : ''; ?>>Rendah</option>
-                        <option value="medium" <?php echo ($_POST['priority'] ?? 'medium') === 'medium' ? 'selected' : ''; ?>>Sedang</option>
-                        <option value="high" <?php echo ($_POST['priority'] ?? 'medium') === 'high' ? 'selected' : ''; ?>>Tinggi</option>
+                    <label for="serial_number">S/N *</label>
+                    <input type="text" id="serial_number" name="serial_number" value="<?php echo htmlspecialchars($_POST['serial_number'] ?? ''); ?>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="damage_date">Tanggal Kerusakan *</label>
+                    <input type="date" id="damage_date" name="damage_date" value="<?php echo htmlspecialchars($_POST['damage_date'] ?? date('Y-m-d')); ?>" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="location">Lokasi *</label>
+                    <input type="text" id="location" name="location" value="<?php echo htmlspecialchars($_POST['location'] ?? ''); ?>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="damage_condition">Kondisi Kerusakan *</label>
+                    <select id="damage_condition" name="damage_condition" required>
+                        <option value="">Pilih kondisi kerusakan</option>
+                        <option value="light" <?php echo ($_POST['damage_condition'] ?? '') === 'light' ? 'selected' : ''; ?>>Rusak Ringan</option>
+                        <option value="moderate" <?php echo ($_POST['damage_condition'] ?? '') === 'moderate' ? 'selected' : ''; ?>>Rusak Sedang</option>
+                        <option value="severe" <?php echo ($_POST['damage_condition'] ?? '') === 'severe' ? 'selected' : ''; ?>>Rusak Berat</option>
                     </select>
                 </div>
             </div>
@@ -324,9 +341,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Validate form fields
         const title = document.getElementById('title').value.trim();
         const description = document.getElementById('description').value.trim();
+        const equipmentName = document.getElementById('equipment_name').value.trim();
+        const model = document.getElementById('model').value.trim();
+        const serialNumber = document.getElementById('serial_number').value.trim();
+        const damageDate = document.getElementById('damage_date').value.trim();
         const location = document.getElementById('location').value.trim();
+        const damageCondition = document.getElementById('damage_condition').value.trim();
 
-        if (!title || !description || !location) {
+        if (!title || !description || !equipmentName || !model || !serialNumber || !damageDate || !location || !damageCondition) {
             showToast('Semua field wajib diisi!', 'error');
             return false;
         }

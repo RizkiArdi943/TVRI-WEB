@@ -24,13 +24,16 @@ if (!$case) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = $_POST['title'] ?? '';
     $description = $_POST['description'] ?? '';
+    $equipment_name = $_POST['equipment_name'] ?? '';
+    $model = $_POST['model'] ?? '';
+    $serial_number = $_POST['serial_number'] ?? '';
+    $damage_date = $_POST['damage_date'] ?? '';
     $location = $_POST['location'] ?? '';
-    $category_id = $_POST['category_id'] ?? '';
-    $priority = $_POST['priority'] ?? 'medium';
+    $damage_condition = $_POST['damage_condition'] ?? '';
     $status = $_POST['status'] ?? 'pending';
     $imagePath = $case['image_path'] ?? null;
     
-    if (empty($title) || empty($description) || empty($location) || empty($category_id)) {
+    if (empty($title) || empty($description) || empty($equipment_name) || empty($model) || empty($serial_number) || empty($damage_date) || empty($location) || empty($damage_condition)) {
         $error = 'Semua field wajib diisi!';
     } else {
         // Handle image upload (optional)
@@ -78,9 +81,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $updateData = [
                 'title' => $title,
                 'description' => $description,
+                'equipment_name' => $equipment_name,
+                'model' => $model,
+                'serial_number' => $serial_number,
+                'damage_date' => $damage_date,
                 'location' => $location,
-                'category_id' => (int)$category_id,
-                'priority' => $priority,
+                'damage_condition' => $damage_condition,
                 'status' => $status,
                 'image_path' => $imagePath
             ];
@@ -139,6 +145,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <textarea id="description" name="description" rows="4" required><?php echo htmlspecialchars($case['description']); ?></textarea>
             </div>
 
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="equipment_name">Nama Peralatan *</label>
+                    <input type="text" id="equipment_name" name="equipment_name" value="<?php echo htmlspecialchars($case['equipment_name'] ?? ''); ?>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="model">Model *</label>
+                    <input type="text" id="model" name="model" value="<?php echo htmlspecialchars($case['model'] ?? ''); ?>" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="serial_number">S/N *</label>
+                    <input type="text" id="serial_number" name="serial_number" value="<?php echo htmlspecialchars($case['serial_number'] ?? ''); ?>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="damage_date">Tanggal Kerusakan *</label>
+                    <input type="date" id="damage_date" name="damage_date" value="<?php echo htmlspecialchars($case['damage_date'] ?? date('Y-m-d')); ?>" required>
+                </div>
+            </div>
+
             <div class="form-group">
                 <label for="image">Gambar (opsional)</label>
                 <?php if (!empty($case['image_path'])): ?>
@@ -157,14 +187,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="form-group">
-                    <label for="category_id">Kategori *</label>
-                    <select id="category_id" name="category_id" required>
-                        <option value="">Pilih Kategori</option>
-                        <?php foreach ($categories as $category): ?>
-                            <option value="<?php echo $category['id']; ?>" <?php echo $case['category_id'] == $category['id'] ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($category['name']); ?>
-                            </option>
-                        <?php endforeach; ?>
+                    <label for="damage_condition">Kondisi Kerusakan *</label>
+                    <select id="damage_condition" name="damage_condition" required>
+                        <option value="">Pilih kondisi kerusakan</option>
+                        <option value="light" <?php echo ($case['damage_condition'] ?? '') === 'light' ? 'selected' : ''; ?>>Rusak Ringan</option>
+                        <option value="moderate" <?php echo ($case['damage_condition'] ?? '') === 'moderate' ? 'selected' : ''; ?>>Rusak Sedang</option>
+                        <option value="severe" <?php echo ($case['damage_condition'] ?? '') === 'severe' ? 'selected' : ''; ?>>Rusak Berat</option>
                     </select>
                 </div>
             </div>

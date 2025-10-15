@@ -35,7 +35,12 @@ CREATE TABLE IF NOT EXISTS cases (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
+    equipment_name VARCHAR(255) NOT NULL,
+    model VARCHAR(255) NULL,
+    serial_number VARCHAR(255) NULL,
+    damage_date DATE NOT NULL,
     location VARCHAR(100) NOT NULL,
+    damage_condition ENUM('light', 'moderate', 'severe') DEFAULT 'light',
     category_id INT NOT NULL,
     status ENUM('pending', 'in_progress', 'completed', 'cancelled') DEFAULT 'pending',
     priority ENUM('low', 'medium', 'high') DEFAULT 'medium',
@@ -81,15 +86,15 @@ INSERT INTO categories (name, color) VALUES
 ON DUPLICATE KEY UPDATE name=name;
 
 -- Insert sample cases
-INSERT INTO cases (title, description, location, category_id, status, priority, reported_by) VALUES
-('Gangguan Sinyal Transmisi', 'Sinyal transmisi terputus-putus di area Palangkaraya. Kualitas gambar tidak stabil dan sering terjadi gangguan.', 'Palangkaraya', 1, 'pending', 'high', 1),
-('Maintenance Studio A', 'Pembersihan dan maintenance rutin studio A. Perlu pengecekan peralatan audio dan video.', 'Studio A', 2, 'in_progress', 'medium', 1),
-('Update Software Encoder', 'Update software encoder untuk meningkatkan kualitas siaran. Perlu restart sistem setelah update.', 'Control Room', 3, 'completed', 'low', 1),
-('Gangguan Jaringan Internet', 'Koneksi internet tidak stabil di area kantor. Perlu pengecekan router dan switch.', 'Kantor TVRI', 4, 'pending', 'high', 1),
-('Perbaikan Antena Transmisi', 'Antena transmisi di menara utama mengalami kerusakan. Perlu penggantian komponen.', 'Menara Transmisi', 1, 'in_progress', 'high', 1),
-('Pembersihan Kamera Studio', 'Pembersihan lensa dan body kamera studio B. Perlu pengecekan autofocus.', 'Studio B', 2, 'completed', 'low', 1),
-('Upgrade RAM Server', 'Upgrade RAM server untuk meningkatkan performa sistem. Perlu shutdown server sementara.', 'Server Room', 3, 'pending', 'medium', 1),
-('Perbaikan AC Control Room', 'AC di control room tidak dingin. Perlu pengecekan freon dan filter.', 'Control Room', 5, 'in_progress', 'medium', 1)
+INSERT INTO cases (title, description, equipment_name, model, serial_number, damage_date, location, damage_condition, category_id, status, priority, reported_by) VALUES
+('Gangguan Sinyal Transmisi', 'Sinyal transmisi terputus-putus di area Palangkaraya. Kualitas gambar tidak stabil dan sering terjadi gangguan.', 'Transmitter', 'TX-2000', 'SN001', '2024-01-15', 'Transmisi Palangkaraya', 'severe', 1, 'pending', 'high', 1),
+('Maintenance Studio A', 'Pembersihan dan maintenance rutin studio A. Perlu pengecekan peralatan audio dan video.', 'Audio Mixer', 'MX-500', 'SN002', '2024-01-16', 'Transmisi Sampit', 'light', 2, 'in_progress', 'medium', 1),
+('Update Software Encoder', 'Update software encoder untuk meningkatkan kualitas siaran. Perlu restart sistem setelah update.', 'Encoder', 'ENC-100', 'SN003', '2024-01-17', 'Transmisi Pangkalanbun', 'moderate', 3, 'completed', 'low', 1),
+('Gangguan Jaringan Internet', 'Koneksi internet tidak stabil di area kantor. Perlu pengecekan router dan switch.', 'Router', 'RT-3000', 'SN004', '2024-01-18', 'Transmisi Palangkaraya', 'severe', 4, 'pending', 'high', 1),
+('Perbaikan Antena Transmisi', 'Antena transmisi di menara utama mengalami kerusakan. Perlu penggantian komponen.', 'Antena', 'ANT-500', 'SN005', '2024-01-19', 'Transmisi Sampit', 'severe', 1, 'in_progress', 'high', 1),
+('Pembersihan Kamera Studio', 'Pembersihan lensa dan body kamera studio B. Perlu pengecekan autofocus.', 'Kamera', 'CAM-200', 'SN006', '2024-01-20', 'Transmisi Pangkalanbun', 'light', 2, 'completed', 'low', 1),
+('Upgrade RAM Server', 'Upgrade RAM server untuk meningkatkan performa sistem. Perlu shutdown server sementara.', 'Server', 'SRV-1000', 'SN007', '2024-01-21', 'Transmisi Palangkaraya', 'moderate', 3, 'pending', 'medium', 1),
+('Perbaikan AC Control Room', 'AC di control room tidak dingin. Perlu pengecekan freon dan filter.', 'AC Unit', 'AC-5000', 'SN008', '2024-01-22', 'Transmisi Sampit', 'moderate', 5, 'in_progress', 'medium', 1)
 ON DUPLICATE KEY UPDATE title=title;
 
 -- Insert system settings
@@ -107,12 +112,12 @@ INSERT INTO users (username, password, full_name, email, role) VALUES
 ON DUPLICATE KEY UPDATE username=username;
 
 -- Insert additional sample cases
-INSERT INTO cases (title, description, location, category_id, status, priority, reported_by) VALUES
-('Perbaikan Monitor Studio', 'Monitor studio C mengalami dead pixel. Perlu penggantian panel LCD.', 'Studio C', 2, 'pending', 'medium', 2),
-('Gangguan Audio Mixer', 'Audio mixer di studio A mengalami noise. Perlu pengecekan kabel dan connector.', 'Studio A', 2, 'in_progress', 'high', 2),
-('Update Firmware Transmitter', 'Update firmware transmitter untuk memperbaiki stabilitas sinyal. Perlu maintenance window.', 'Transmitter Room', 1, 'pending', 'high', 3),
-('Pembersihan Filter AC', 'Filter AC di server room kotor. Perlu pembersihan rutin untuk mencegah overheating.', 'Server Room', 5, 'completed', 'low', 3),
-('Perbaikan UPS', 'UPS di control room tidak berfungsi dengan baik. Perlu pengecekan battery dan inverter.', 'Control Room', 3, 'in_progress', 'high', 3)
+INSERT INTO cases (title, description, equipment_name, model, serial_number, damage_date, location, damage_condition, category_id, status, priority, reported_by) VALUES
+('Perbaikan Monitor Studio', 'Monitor studio C mengalami dead pixel. Perlu penggantian panel LCD.', 'Monitor', 'MON-24', 'SN009', '2024-01-23', 'Transmisi Pangkalanbun', 'moderate', 2, 'pending', 'medium', 2),
+('Gangguan Audio Mixer', 'Audio mixer di studio A mengalami noise. Perlu pengecekan kabel dan connector.', 'Audio Mixer', 'MX-300', 'SN010', '2024-01-24', 'Transmisi Palangkaraya', 'severe', 2, 'in_progress', 'high', 2),
+('Update Firmware Transmitter', 'Update firmware transmitter untuk memperbaiki stabilitas sinyal. Perlu maintenance window.', 'Transmitter', 'TX-1500', 'SN011', '2024-01-25', 'Transmisi Sampit', 'moderate', 1, 'pending', 'high', 3),
+('Pembersihan Filter AC', 'Filter AC di server room kotor. Perlu pembersihan rutin untuk mencegah overheating.', 'AC Unit', 'AC-3000', 'SN012', '2024-01-26', 'Transmisi Pangkalanbun', 'light', 5, 'completed', 'low', 3),
+('Perbaikan UPS', 'UPS di control room tidak berfungsi dengan baik. Perlu pengecekan battery dan inverter.', 'UPS', 'UPS-2000', 'SN013', '2024-01-27', 'Transmisi Palangkaraya', 'severe', 3, 'in_progress', 'high', 3)
 ON DUPLICATE KEY UPDATE title=title;
 
 -- End of initialization script

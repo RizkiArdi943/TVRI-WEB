@@ -143,7 +143,19 @@ foreach ($cases as $index => $case) {
                     <div class="case-content">
                         <?php if (!empty($case['image_path'])): ?>
                         <div class="case-thumb" style="margin-bottom:8px;">
-                            <img src="<?php echo htmlspecialchars($case['image_path']); ?>" alt="Lampiran" style="max-width:100%; height:auto; border-radius:6px;" />
+                            <?php 
+                            // Use upload handler to get correct URL
+                            require_once __DIR__ . '/../../config/upload_simple.php';
+                            $uploadHandler = new SimpleVercelBlobUploadHandler();
+                            $imageUrl = $uploadHandler->getFileUrl($case['image_path']);
+                            ?>
+                            <?php if ($imageUrl): ?>
+                                <img src="<?php echo htmlspecialchars($imageUrl); ?>" alt="Lampiran" style="max-width:100%; height:auto; border-radius:6px; display:block; margin:0 auto;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                            <?php endif; ?>
+                            <div style="<?php echo $imageUrl ? 'display:none;' : 'display:block;'; ?> background:#f3f4f6; padding:20px; text-align:center; border-radius:6px; color:#6b7280;">
+                                <i class="fas fa-image" style="font-size:24px; margin-bottom:8px;"></i><br>
+                                <small>Gambar tidak dapat dimuat</small>
+                            </div>
                         </div>
                         <?php endif; ?>
                         <h4>
@@ -362,6 +374,24 @@ foreach ($cases as $index => $case) {
         transform: translateX(0);
         opacity: 1;
     }
+}
+
+/* Case card image styles */
+.case-thumb {
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+.case-thumb img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.case-thumb img:hover {
+    transform: scale(1.02);
 }
 
 /* Responsive design */

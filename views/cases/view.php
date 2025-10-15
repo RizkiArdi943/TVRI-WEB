@@ -71,12 +71,54 @@ $priorityLabels = [
         <div class="case-content">
             <?php if (!empty($case['image_path'])): ?>
             <div class="case-image" style="margin-bottom:16px;">
-                <img src="<?php echo htmlspecialchars($case['image_path']); ?>" alt="Lampiran Laporan" style="max-width:100%; border-radius:8px;" />
+                <?php 
+                // Use upload handler to get correct URL
+                require_once __DIR__ . '/../../config/upload_simple.php';
+                $uploadHandler = new SimpleVercelBlobUploadHandler();
+                $imageUrl = $uploadHandler->getFileUrl($case['image_path']);
+                ?>
+                <?php if ($imageUrl): ?>
+                    <img src="<?php echo htmlspecialchars($imageUrl); ?>" alt="Lampiran Laporan" style="max-width:100%; height:auto; border-radius:8px; display:block; margin:0 auto; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                <?php endif; ?>
+                <div style="<?php echo $imageUrl ? 'display:none;' : 'display:block;'; ?> background:#f3f4f6; padding:40px; text-align:center; border-radius:8px; color:#6b7280;">
+                    <i class="fas fa-image" style="font-size:48px; margin-bottom:16px;"></i><br>
+                    <h4>Gambar tidak dapat dimuat</h4>
+                    <p>File gambar mungkin telah dihapus atau tidak tersedia</p>
+                </div>
             </div>
             <?php endif; ?>
             <div class="case-section">
                 <h3>Deskripsi</h3>
                 <p><?php echo nl2br(htmlspecialchars($case['description'])); ?></p>
+            </div>
+
+            <div class="case-section">
+                <h3>Informasi Peralatan</h3>
+                <div class="equipment-info">
+                    <div class="info-row">
+                        <strong>Nama Peralatan:</strong> <?php echo htmlspecialchars($case['equipment_name'] ?? 'Tidak ada data'); ?>
+                    </div>
+                    <div class="info-row">
+                        <strong>Model:</strong> <?php echo htmlspecialchars($case['model'] ?? 'Tidak ada data'); ?>
+                    </div>
+                    <div class="info-row">
+                        <strong>S/N:</strong> <?php echo htmlspecialchars($case['serial_number'] ?? 'Tidak ada data'); ?>
+                    </div>
+                    <div class="info-row">
+                        <strong>Tanggal Kerusakan:</strong> <?php echo !empty($case['damage_date']) ? date('d/m/Y', strtotime($case['damage_date'])) : 'Tidak ada data'; ?>
+                    </div>
+                    <div class="info-row">
+                        <strong>Kondisi Kerusakan:</strong> 
+                        <?php 
+                        $conditionLabels = [
+                            'light' => 'Rusak Ringan',
+                            'moderate' => 'Rusak Sedang', 
+                            'severe' => 'Rusak Berat'
+                        ];
+                        echo $conditionLabels[$case['damage_condition']] ?? 'Tidak ada data';
+                        ?>
+                    </div>
+                </div>
             </div>
 
             <div class="case-info-grid">
