@@ -71,7 +71,7 @@ class CasesController {
 
                 if (empty($error)) {
                     // Generate ID laporan
-                    $idLaporan = $this->idGenerator->generateID($location);
+                    $idLaporan = $this->idGenerator->generateID($location, $damage_date);
                     
                     // Ensure ID is unique
                     $attempts = 0;
@@ -79,7 +79,7 @@ class CasesController {
                         $attempts++;
                         // Add small delay and regenerate
                         usleep(1000); // 1ms delay
-                        $idLaporan = $this->idGenerator->generateID($location);
+                        $idLaporan = $this->idGenerator->generateID($location, $damage_date);
                     }
                     
                     if ($attempts >= 10) {
@@ -96,6 +96,7 @@ class CasesController {
                             'serial_number' => $serial_number,
                             'damage_date' => $damage_date,
                             'location' => $location,
+                            'damage_condition' => $_POST['damage_condition'] ?? 'light',
                             'category_id' => 1, // Default category (Transmisi)
                             'status' => 'pending',
                             'priority' => 'medium', // Default priority

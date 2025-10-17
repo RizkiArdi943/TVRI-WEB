@@ -8,6 +8,11 @@
  * Check if user is logged in using browser storage
  */
 function isLoggedIn() {
+    // First check if we have valid session data (for local development)
+    if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+        return true;
+    }
+    
     // Check if we have auth token in request
     $authToken = $_COOKIE['auth_token'] ?? $_POST['auth_token'] ?? $_GET['auth_token'] ?? null;
     
