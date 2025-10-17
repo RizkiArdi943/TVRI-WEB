@@ -1,4 +1,7 @@
 <?php
+// Set timezone to WIB (Waktu Indonesia Barat)
+date_default_timezone_set('Asia/Jakarta');
+
 require_once __DIR__ . '/../../controllers/cases.php';
 
 // Initialize controller
@@ -8,6 +11,11 @@ $casesController = new CasesController();
 $result = $casesController->create();
 $success = $result['success'];
 $error = $result['error'];
+
+// Check for success message from URL parameter (after redirect)
+if (isset($_GET['success']) && empty($success)) {
+    $success = urldecode($_GET['success']);
+}
 
 // Debug: Log request method and session status
 error_log('=== CREATE FORM DEBUG ===');
@@ -65,15 +73,15 @@ error_log('Error: ' . $error);
                 </div>
 
                 <div class="form-group">
-                    <label for="model">Model *</label>
-                    <input type="text" id="model" name="model" value="<?php echo htmlspecialchars($_POST['model'] ?? ''); ?>" required>
+                    <label for="model">Model</label>
+                    <input type="text" id="model" name="model" value="<?php echo htmlspecialchars($_POST['model'] ?? ''); ?>">
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="serial_number">S/N *</label>
-                    <input type="text" id="serial_number" name="serial_number" value="<?php echo htmlspecialchars($_POST['serial_number'] ?? ''); ?>" required>
+                    <label for="serial_number">S/N</label>
+                    <input type="text" id="serial_number" name="serial_number" value="<?php echo htmlspecialchars($_POST['serial_number'] ?? ''); ?>">
                 </div>
 
                 <div class="form-group">
@@ -84,8 +92,13 @@ error_log('Error: ' . $error);
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="location">Lokasi *</label>
-                    <input type="text" id="location" name="location" value="<?php echo htmlspecialchars($_POST['location'] ?? ''); ?>" required>
+                    <label for="location">Lokasi Transmisi Digital *</label>
+                    <select id="location" name="location" required>
+                        <option value="">Pilih lokasi transmisi</option>
+                        <option value="Transmisi Palangkaraya" <?php echo ($_POST['location'] ?? '') === 'Transmisi Palangkaraya' ? 'selected' : ''; ?>>Transmisi Palangkaraya</option>
+                        <option value="Transmisi Sampit" <?php echo ($_POST['location'] ?? '') === 'Transmisi Sampit' ? 'selected' : ''; ?>>Transmisi Sampit</option>
+                        <option value="Transmisi Pangkalanbun" <?php echo ($_POST['location'] ?? '') === 'Transmisi Pangkalanbun' ? 'selected' : ''; ?>>Transmisi Pangkalanbun</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
@@ -100,9 +113,23 @@ error_log('Error: ' . $error);
             </div>
 
             <div class="form-group">
-                <label for="image">Gambar (opsional)</label>
-                <input type="file" id="image" name="image" accept="image/*">
+                <label for="image">Gambar *</label>
+                <input type="file" id="image" name="image" accept="image/*" required>
                 <small class="form-hint">Format: JPG, PNG, WEBP. Maksimal 5MB.</small>
+                
+                <!-- Image Preview Container -->
+                <div id="imagePreview" class="image-preview" style="display: none;">
+                    <div class="preview-container">
+                        <img id="previewImg" src="" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 10px;">
+                        <div class="preview-info">
+                            <span id="fileName"></span>
+                            <span id="fileSize"></span>
+                        </div>
+                        <button type="button" id="removeImage" class="btn-remove-image">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div class="form-actions">
@@ -263,6 +290,62 @@ error_log('Error: ' . $error);
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
+
+/* Image Preview Styles */
+.image-preview {
+    margin-top: 10px;
+    padding: 15px;
+    background: #f8fafc;
+    border: 2px dashed #e2e8f0;
+    border-radius: 8px;
+    position: relative;
+}
+
+.preview-container {
+    position: relative;
+    display: inline-block;
+}
+
+.preview-info {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #64748b;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-remove-image {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+}
+
+.btn-remove-image:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+}
+
+/* Form hint styling */
+.form-hint {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+    color: #6b7280;
+}
 </style>
 
 <script>
@@ -309,7 +392,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const successAlert = document.querySelector('.alert-success');
     if (successAlert) {
         const message = successAlert.textContent.trim();
-        showToast(message, 'success');
+        showToast(message, 'success', 3000);
+        
+        // Clear form completely on page load if success
+        setTimeout(() => {
+            document.getElementById('caseForm').reset();
+            document.getElementById('imagePreview').style.display = 'none';
+            document.querySelectorAll('input, textarea, select').forEach(field => {
+                field.style.borderColor = '';
+                field.style.boxShadow = '';
+            });
+        }, 100);
     }
 
     // Check for error message
@@ -342,13 +435,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const title = document.getElementById('title').value.trim();
         const description = document.getElementById('description').value.trim();
         const equipmentName = document.getElementById('equipment_name').value.trim();
-        const model = document.getElementById('model').value.trim();
-        const serialNumber = document.getElementById('serial_number').value.trim();
         const damageDate = document.getElementById('damage_date').value.trim();
         const location = document.getElementById('location').value.trim();
         const damageCondition = document.getElementById('damage_condition').value.trim();
+        const image = document.getElementById('image').files[0];
 
-        if (!title || !description || !equipmentName || !model || !serialNumber || !damageDate || !location || !damageCondition) {
+        if (!title || !description || !equipmentName || !damageDate || !location || !damageCondition || !image) {
             showToast('Semua field wajib diisi!', 'error');
             return false;
         }
@@ -391,9 +483,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Clear form on success
                 document.getElementById('caseForm').reset();
+                
+                // Hide image preview
+                document.getElementById('imagePreview').style.display = 'none';
+                
+                // Reset form field styles
+                document.querySelectorAll('input, textarea, select').forEach(field => {
+                    field.style.borderColor = '';
+                    field.style.boxShadow = '';
+                });
 
-                // Optional: redirect after success
-                // setTimeout(() => window.location.href = 'index.php?page=cases', 2000);
+                // Refresh page after 2 seconds to ensure clean state
+                setTimeout(() => {
+                    window.location.href = 'index.php?page=cases/create';
+                }, 2000);
             } else if (errorAlert) {
                 const message = errorAlert.textContent.trim();
                 showToast(message, 'error');
@@ -418,14 +521,20 @@ document.addEventListener('DOMContentLoaded', function() {
         this.style.height = this.scrollHeight + 'px';
     });
 
-    // Image validation
+    // Image validation and preview
     document.getElementById('image').addEventListener('change', function(e) {
         const file = e.target.files[0];
+        const preview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        
         if (file) {
             // Validate file size (5MB)
             if (file.size > 5 * 1024 * 1024) {
                 showToast('Ukuran gambar maksimal 5MB!', 'error');
                 this.value = '';
+                preview.style.display = 'none';
                 return;
             }
 
@@ -434,12 +543,32 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!allowedTypes.includes(file.type)) {
                 showToast('Format gambar harus JPG, PNG, atau WEBP!', 'error');
                 this.value = '';
+                preview.style.display = 'none';
                 return;
             }
 
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                fileName.textContent = file.name;
+                fileSize.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+
             // Show success message for valid file
             showToast(`Gambar "${file.name}" siap diupload`, 'success', 2000);
+        } else {
+            preview.style.display = 'none';
         }
+    });
+
+    // Remove image functionality
+    document.getElementById('removeImage').addEventListener('click', function() {
+        document.getElementById('image').value = '';
+        document.getElementById('imagePreview').style.display = 'none';
+        showToast('Gambar dihapus', 'success', 2000);
     });
 
     // Form field validation on blur

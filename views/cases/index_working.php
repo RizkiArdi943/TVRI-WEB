@@ -108,10 +108,6 @@ foreach ($cases as $index => $case) {
                     <i class="fas fa-file-pdf"></i>
                     Export PDF
                 </button>
-                <button type="button" id="printPdfBtn" class="btn btn-danger">
-                    <i class="fas fa-print"></i>
-                    Print / Save PDF
-                </button>
             </div>
         </div>
     </div>
@@ -166,7 +162,6 @@ foreach ($cases as $index => $case) {
                             </div>
                         </div>
                         <?php endif; ?>
-                        <div class="case-id">ID: <?php echo htmlspecialchars($case['id_laporan'] ?? $case['id']); ?></div>
                         <h4>
                             <a href="index.php?page=cases/view&id=<?php echo $case['id']; ?>">
                                 <?php echo htmlspecialchars($case['title']); ?>
@@ -386,42 +381,21 @@ foreach ($cases as $index => $case) {
 }
 
 /* Case card image styles */
-/* Uniform image viewport inside card - keeps ratio without cropping */
 .case-thumb {
     width: 100%;
     margin-bottom: 12px;
-    height: 200px;              /* fixed viewport height */
-    max-height: 200px;
-    background-color: #f5f5f5;  /* neutral background for empty space */
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;    /* center image box */
-    overflow: hidden;           /* keep layout tidy */
-    padding: 2px;               /* tighter gutter to tampilkan gambar sedikit lebih besar */
 }
 
 .case-thumb img {
-    width: 100% !important;     /* fill container width */
-    height: 100% !important;    /* and height of viewport */
-    object-fit: contain;         /* keep aspect ratio, no crop */
-    object-position: center;     /* center image */
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease;
-    background-color: transparent;
-    transform: translateY(-14px); /* lift image sedikit lebih tinggi */
 }
 
 .case-thumb img:hover {
-    transform: translateY(-14px) scale(1.02);
-}
-
-/* Styling untuk ID laporan pada overview */
-.case-id {
-    font-size: 12px;
-    color: #6b7280;
-    margin-bottom: 4px;
+    transform: scale(1.02);
 }
 
 /* Responsive design */
@@ -581,7 +555,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const exportBtn = document.getElementById('exportBtn');
     const exportExcelBtn = document.getElementById('exportExcelBtn');
     const exportPdfBtn = document.getElementById('exportPdfBtn');
-    const printPdfBtn = document.getElementById('printPdfBtn');
     
     // Search with debounce
     searchInput.addEventListener('input', function() {
@@ -675,84 +648,6 @@ document.addEventListener('DOMContentLoaded', function() {
             exportPdfBtn.classList.remove('loading');
             showToast('Export PDF berhasil', 'success');
         }, 2000);
-    });
-
-    // Print PDF (inline), user pilih orientation di dialog print
-    function buildPrintUrl(orientation) {
-        const searchTerm = searchInput.value;
-        const category = categoryFilter.value;
-        const status = statusFilter.value;
-        const sort = sortFilter.value;
-        return `index.php?page=export&type=pdf&renderer=print&orientation=${encodeURIComponent(orientation)}&search=${encodeURIComponent(searchTerm)}&category=${encodeURIComponent(category)}&status=${encodeURIComponent(status)}&sort=${encodeURIComponent(sort)}`;
-    }
-
-    // Print inline tanpa pindah halaman: fetch HTML, render ke iframe overlay, auto print
-    printPdfBtn.addEventListener('click', async function() {
-        const url = buildPrintUrl('portrait') + '&inline=1';
-        try {
-            showToast('Menyiapkan pratinjau cetak...', 'success', 2000);
-            const res = await fetch(url, { cache: 'no-store' });
-            const html = await res.text();
-
-            let overlay = document.getElementById('print-overlay');
-            if (!overlay) {
-                overlay = document.createElement('div');
-                overlay.id = 'print-overlay';
-                overlay.style.position = 'fixed';
-                overlay.style.inset = '0';
-                overlay.style.background = 'rgba(0,0,0,0.15)';
-                overlay.style.zIndex = '99999';
-                overlay.innerHTML = `
-                    <div id="print-toolbar" style="position:absolute;top:16px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid #e5e7eb;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,.08);display:flex;gap:12px;align-items:center;padding:10px 14px;z-index:2">
-                        <strong style="font-size:13px;color:#111827">Cetak Laporan</strong>
-                        <label style="font-size:12px;color:#374151">Orientasi:</label>
-                        <select id="print-orientation" style="padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px">
-                            <option value="portrait" selected>Portrait</option>
-                            <option value="landscape">Landscape</option>
-                        </select>
-                        <button id="print-start" style="background:#dc2626;color:#fff;border:none;border-radius:6px;padding:8px 12px;font-size:12px;cursor:pointer">Print</button>
-                        <button id="print-close" style="background:#fff;color:#374151;border:1px solid #d1d5db;border-radius:6px;padding:8px 12px;font-size:12px;cursor:pointer">Tutup</button>
-                    </div>
-                    <iframe id="print-iframe" style="width:100%;height:100%;border:0;background:white"></iframe>`;
-                document.body.appendChild(overlay);
-            }
-
-            const iframe = document.getElementById('print-iframe');
-            const doc = iframe.contentWindow.document;
-            doc.open();
-            doc.write(html);
-            doc.close();
-
-            // Toolbar handlers (pilihan orientasi sebelum print)
-            const sel = document.getElementById('print-orientation');
-            const applyOrientation = (value) => {
-                const styleId = 'override-orientation';
-                let style = doc.getElementById(styleId);
-                const css = `@page { size: A4 ${value}; }`;
-                if (!style) {
-                    style = doc.createElement('style');
-                    style.id = styleId;
-                    doc.head.appendChild(style);
-                }
-                style.textContent = css;
-            };
-            sel.addEventListener('change', () => applyOrientation(sel.value));
-            applyOrientation('portrait');
-
-            document.getElementById('print-start').onclick = function() {
-                iframe.contentWindow.focus();
-                iframe.contentWindow.print();
-            };
-            document.getElementById('print-close').onclick = function() {
-                if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
-            };
-
-            // Tutup overlay setelah print selesai (best-effort)
-            const removeOverlay = () => { if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay); };
-            window.addEventListener('focus', removeOverlay, { once: true });
-        } catch (e) {
-            showToast('Gagal membuka dialog print', 'error');
-        }
     });
 });
 

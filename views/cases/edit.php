@@ -136,6 +136,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="form-card">
         <form method="POST" enctype="multipart/form-data" class="case-form">
             <div class="form-group">
+                <label>ID Laporan</label>
+                <div class="id-display">
+                    <?php echo htmlspecialchars($case['id_laporan'] ?? 'N/A'); ?>
+                </div>
+            </div>
+            
+            <div class="form-group">
                 <label for="title">Judul Laporan *</label>
                 <input type="text" id="title" name="title" value="<?php echo htmlspecialchars($case['title']); ?>" required>
             </div>

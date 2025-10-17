@@ -1,7 +1,11 @@
 <?php
+// Set timezone to WIB (Waktu Indonesia Barat)
+date_default_timezone_set('Asia/Jakarta');
+
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/browser_auth.php';
 require_once __DIR__ . '/../config/upload_simple.php';
+require_once __DIR__ . '/../config/id_generator.php';
 
 // Initialize session
 if (session_status() === PHP_SESSION_NONE) {
@@ -11,10 +15,12 @@ if (session_status() === PHP_SESSION_NONE) {
 class CasesController {
     private $db;
     private $uploadHandler;
+    private $idGenerator;
 
     public function __construct() {
         $this->db = new Database();
         $this->uploadHandler = new SimpleVercelBlobUploadHandler();
+        $this->idGenerator = new IDLaporanGenerator($this->db);
     }
 
     /**
@@ -32,15 +38,14 @@ class CasesController {
             $serial_number = trim($_POST['serial_number'] ?? '');
             $damage_date = trim($_POST['damage_date'] ?? '');
             $location = trim($_POST['location'] ?? '');
-            $damage_condition = $_POST['damage_condition'] ?? 'light';
 
             // Check session
             if (!isset($_SESSION['user_id'])) {
                 $error = 'Sesi pengguna tidak valid. Silakan login ulang.';
                 error_log('Session check failed: user_id not set');
-            } elseif ($title === '' || $description === '' || $equipment_name === '' || $damage_date === '' || $location === '' || $damage_condition === '') {
+            } elseif ($title === '' || $description === '' || $equipment_name === '' || $damage_date === '' || $location === '') {
                 $error = 'Semua field wajib diisi!';
-                error_log('Validation failed: title=' . $title . ', description=' . $description . ', equipment_name=' . $equipment_name . ', model=' . $model . ', serial_number=' . $serial_number . ', damage_date=' . $damage_date . ', location=' . $location . ', damage_condition=' . $damage_condition);
+                error_log('Validation failed: title=' . $title . ', description=' . $description . ', equipment_name=' . $equipment_name . ', model=' . $model . ', serial_number=' . $serial_number . ', damage_date=' . $damage_date . ', location=' . $location);
             } elseif (!isset($_FILES['image']) || $_FILES['image']['error'] === UPLOAD_ERR_NO_FILE) {
                 $error = 'Gambar wajib diupload!';
                 error_log('Validation failed: No image uploaded');
@@ -65,23 +70,40 @@ class CasesController {
                 }
 
                 if (empty($error)) {
-                    // Prepare case data
-                    $caseData = [
-                        'title' => $title,
-                        'description' => $description,
-                        'equipment_name' => $equipment_name,
-                        'model' => $model,
-                        'serial_number' => $serial_number,
-                        'damage_date' => $damage_date,
-                        'location' => $location,
-                        'damage_condition' => $damage_condition,
-                        'category_id' => 1, // Default category (Transmisi)
-                        'status' => 'pending',
-                        'priority' => 'medium', // Default priority
-                        'reported_by' => (int)$_SESSION['user_id'],
-                        'assigned_to' => null,
-                        'image_path' => $imagePath
-                    ];
+                    // Generate ID laporan
+                    $idLaporan = $this->idGenerator->generateID($location);
+                    
+                    // Ensure ID is unique
+                    $attempts = 0;
+                    while (!$this->idGenerator->isUnique($idLaporan) && $attempts < 10) {
+                        $attempts++;
+                        // Add small delay and regenerate
+                        usleep(1000); // 1ms delay
+                        $idLaporan = $this->idGenerator->generateID($location);
+                    }
+                    
+                    if ($attempts >= 10) {
+                        $error = 'Gagal membuat ID laporan unik. Silakan coba lagi.';
+                        error_log('Failed to generate unique ID after 10 attempts');
+                    } else {
+                        // Prepare case data
+                        $caseData = [
+                            'id_laporan' => $idLaporan,
+                            'title' => $title,
+                            'description' => $description,
+                            'equipment_name' => $equipment_name,
+                            'model' => $model,
+                            'serial_number' => $serial_number,
+                            'damage_date' => $damage_date,
+                            'location' => $location,
+                            'category_id' => 1, // Default category (Transmisi)
+                            'status' => 'pending',
+                            'priority' => 'medium', // Default priority
+                            'reported_by' => (int)$_SESSION['user_id'],
+                            'assigned_to' => null,
+                            'image_path' => $imagePath
+                        ];
+                    }
 
                     error_log('Attempting to insert case: ' . json_encode($caseData));
 
@@ -97,8 +119,15 @@ class CasesController {
                         if ($result) {
                             error_log('Case inserted successfully with ID: ' . $result);
                             $_POST = []; // Clear form data
-                            $success = 'Laporan berhasil ditambahkan dengan ID: ' . $result;
+                            $success = 'Laporan berhasil ditambahkan dengan ID: ' . $idLaporan;
                             error_log('SUCCESS variable set: ' . $success);
+                            
+                            // Redirect to clean form after successful submission
+                            if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) || $_SERVER['HTTP_X_REQUESTED_WITH'] !== 'XMLHttpRequest') {
+                                // Only redirect for non-AJAX requests
+                                header('Location: index.php?page=cases/create&success=' . urlencode($success));
+                                exit();
+                            }
                         } else {
                             $error = 'Gagal menyimpan laporan ke database. Silakan coba lagi.';
                             error_log('Database insert returned false. Check database configuration.');

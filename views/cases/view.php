@@ -1,4 +1,7 @@
 <?php
+// Set timezone to WIB (Waktu Indonesia Barat)
+date_default_timezone_set('Asia/Jakarta');
+
 require_once __DIR__ . '/../../config/database.php';
 
 $id = $_GET['id'] ?? 0;
@@ -158,7 +161,10 @@ $priorityLabels = [
                         Tanggal Dibuat
                     </div>
                     <div class="info-value">
-                        <?php echo date('d/m/Y H:i', strtotime($case['created_at'])); ?>
+                        <span id="createdTime" data-timestamp="<?php echo $case['created_at']; ?>">
+                            <?php echo date('d/m/Y H:i', strtotime($case['created_at'])); ?>
+                        </span>
+                        <small class="timezone-info">WIB</small>
                     </div>
                 </div>
 
@@ -168,7 +174,10 @@ $priorityLabels = [
                         Terakhir Diupdate
                     </div>
                     <div class="info-value">
-                        <?php echo date('d/m/Y H:i', strtotime($case['updated_at'])); ?>
+                        <span id="updatedTime" data-timestamp="<?php echo $case['updated_at']; ?>">
+                            <?php echo date('d/m/Y H:i', strtotime($case['updated_at'])); ?>
+                        </span>
+                        <small class="timezone-info">WIB</small>
                     </div>
                 </div>
 
@@ -178,7 +187,20 @@ $priorityLabels = [
                         ID Laporan
                     </div>
                     <div class="info-value">
-                        #<?php echo str_pad($case['id'], 4, '0', STR_PAD_LEFT); ?>
+                        <?php echo htmlspecialchars($case['id_laporan'] ?? 'N/A'); ?>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="fas fa-clock"></i>
+                        Waktu Saat Ini
+                    </div>
+                    <div class="info-value">
+                        <span id="currentTime">
+                            <?php echo date('d/m/Y H:i:s'); ?>
+                        </span>
+                        <small class="timezone-info">WIB</small>
                     </div>
                 </div>
             </div>
@@ -197,7 +219,120 @@ $priorityLabels = [
     </div>
 </div>
 
+<style>
+.timezone-info {
+    color: #6b7280;
+    font-size: 11px;
+    margin-left: 5px;
+    background: #f3f4f6;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+#currentTime {
+    font-weight: 600;
+    color: #059669;
+}
+
+.info-value {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+</style>
+
 <script>
+// Real time clock function
+function updateCurrentTime() {
+    const now = new Date();
+    const options = {
+        timeZone: 'Asia/Jakarta',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    };
+    
+    const formatter = new Intl.DateTimeFormat('id-ID', options);
+    const parts = formatter.formatToParts(now);
+    
+    const day = parts.find(part => part.type === 'day').value;
+    const month = parts.find(part => part.type === 'month').value;
+    const year = parts.find(part => part.type === 'year').value;
+    const hour = parts.find(part => part.type === 'hour').value;
+    const minute = parts.find(part => part.type === 'minute').value;
+    const second = parts.find(part => part.type === 'second').value;
+    
+    const timeString = `${day}/${month}/${year} ${hour}:${minute}:${second}`;
+    
+    const currentTimeElement = document.getElementById('currentTime');
+    if (currentTimeElement) {
+        currentTimeElement.textContent = timeString;
+    }
+}
+
+// Format timestamp to WIB
+function formatTimestampToWIB(timestamp) {
+    const date = new Date(timestamp);
+    const options = {
+        timeZone: 'Asia/Jakarta',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    };
+    
+    const formatter = new Intl.DateTimeFormat('id-ID', options);
+    const parts = formatter.formatToParts(date);
+    
+    const day = parts.find(part => part.type === 'day').value;
+    const month = parts.find(part => part.type === 'month').value;
+    const year = parts.find(part => part.type === 'year').value;
+    const hour = parts.find(part => part.type === 'hour').value;
+    const minute = parts.find(part => part.type === 'minute').value;
+    
+    return `${day}/${month}/${year} ${hour}:${minute}`;
+}
+
+// Update timestamps on page load
+function updateTimestamps() {
+    const createdTimeElement = document.getElementById('createdTime');
+    const updatedTimeElement = document.getElementById('updatedTime');
+    
+    if (createdTimeElement) {
+        const timestamp = createdTimeElement.getAttribute('data-timestamp');
+        if (timestamp) {
+            createdTimeElement.textContent = formatTimestampToWIB(timestamp);
+        }
+    }
+    
+    if (updatedTimeElement) {
+        const timestamp = updatedTimeElement.getAttribute('data-timestamp');
+        if (timestamp) {
+            updatedTimeElement.textContent = formatTimestampToWIB(timestamp);
+        }
+    }
+}
+
+// Initialize real time clock
+document.addEventListener('DOMContentLoaded', function() {
+    // Update current time immediately
+    updateCurrentTime();
+    
+    // Update timestamps to WIB
+    updateTimestamps();
+    
+    // Update current time every second
+    setInterval(updateCurrentTime, 1000);
+});
+
 function deleteCase(id) {
     if (confirm('Apakah Anda yakin ingin menghapus laporan ini?')) {
         window.location.href = `index.php?page=cases/delete&id=${id}`;
