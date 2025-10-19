@@ -58,16 +58,17 @@ foreach ($cases as $index => $case) {
                 <div class="search-box">
                     <i class="fas fa-search"></i>
                     <input type="text" id="searchInput" placeholder="Cari laporan..." value="<?php echo htmlspecialchars($search); ?>">
+                    <button id="searchButton" class="btn btn-sm btn-primary">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </div>
                 
                 <div class="filter-group">
                     <select id="categoryFilter">
-                        <option value="">Semua Kategori</option>
-                        <?php foreach ($categories as $cat): ?>
-                            <option value="<?php echo $cat['id']; ?>" <?php echo $category == $cat['id'] ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($cat['name']); ?>
-                            </option>
-                        <?php endforeach; ?>
+                        <option value="">Semua Lokasi</option>
+                        <option value="transmisi_pangkalanbun">Transmisi Pangkalanbun</option>
+                        <option value="transmisi_sampit">Transmisi Sampit</option>
+                        <option value="transmisi_palangkaraya">Transmisi Palangkaraya</option>
                     </select>
                 </div>
                 
@@ -86,7 +87,7 @@ foreach ($cases as $index => $case) {
                         <option value="created_at DESC" <?php echo $sort === 'created_at DESC' ? 'selected' : ''; ?>>Terbaru</option>
                         <option value="created_at ASC" <?php echo $sort === 'created_at ASC' ? 'selected' : ''; ?>>Terlama</option>
                         <option value="title ASC" <?php echo $sort === 'title ASC' ? 'selected' : ''; ?>>Judul A-Z</option>
-                        <option value="priority DESC" <?php echo $sort === 'priority DESC' ? 'selected' : ''; ?>>Prioritas Tinggi</option>
+                        <option value="damage_condition DESC" <?php echo $sort === 'damage_condition DESC' ? 'selected' : ''; ?>>Kerusakan Tingkat Tinggi</option>
                     </select>
                 </div>
             </div>
@@ -116,6 +117,9 @@ foreach ($cases as $index => $case) {
         </div>
     </div>
 
+    <!-- Empty State Container -->
+    <div id="emptyStateContainer" style="display: none;"></div>
+
     <!-- Cases List -->
     <div id="casesList" class="cases-list">
         <?php if (empty($cases)): ?>
@@ -130,7 +134,7 @@ foreach ($cases as $index => $case) {
             </div>
         <?php else: ?>
             <?php foreach ($cases as $case): ?>
-                <div class="case-card" data-category="<?php echo $case['category_id']; ?>" data-status="<?php echo $case['status']; ?>" data-priority="<?php echo $case['priority']; ?>">
+                <div class="case-card" data-category="<?php echo $case['category_id']; ?>" data-location="<?php echo htmlspecialchars($case['location']); ?>" data-status="<?php echo $case['status']; ?>" data-priority="<?php echo $case['priority']; ?>" data-damage-condition="<?php echo $case['damage_condition']; ?>">
                     <div class="case-header">
                         <div class="case-category" style="background-color: <?php echo $case['category_color']; ?>">
                             <?php echo htmlspecialchars($case['category_name']); ?>
@@ -209,6 +213,14 @@ foreach ($cases as $index => $case) {
                             <i class="fas fa-eye"></i>
                             Detail
                         </a>
+                        <a href="controllers/download_surat.php?id=<?php echo $case['id']; ?>" class="btn btn-sm btn-info" onclick="downloadSurat(this.href); return false;">
+                            <i class="fas fa-file-download"></i>
+                            📄 Download Surat
+                        </a>
+                        <a href="controllers/download_surat_pdf.php?id=<?php echo $case['id']; ?>" class="btn btn-sm btn-warning" onclick="downloadSuratPDF(this.href); return false;">
+                            <i class="fas fa-file-pdf"></i>
+                            📄 Download Surat (PDF)
+                        </a>
                         <a href="index.php?page=cases/edit&id=<?php echo $case['id']; ?>" class="btn btn-sm btn-primary">
                             <i class="fas fa-edit"></i>
                             Edit
@@ -246,6 +258,8 @@ foreach ($cases as $index => $case) {
     position: relative;
     flex: 1;
     min-width: 250px;
+    display: flex;
+    align-items: center;
 }
 
 .search-box i {
@@ -261,9 +275,30 @@ foreach ($cases as $index => $case) {
     width: 100%;
     padding: 12px 12px 12px 40px;
     border: 2px solid #e5e7eb;
-    border-radius: 8px;
+    border-radius: 8px 0 0 8px;
     font-size: 14px;
     transition: all 0.2s ease;
+    border-right: none;
+}
+
+.search-box button {
+    border-radius: 0 8px 8px 0;
+    border: 2px solid #3b82f6;
+    border-left: none;
+    background-color: #3b82f6;
+    color: white;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.search-box button {
+    border-radius: 0 8px 8px 0;
+    border: 2px solid #3b82f6;
+    border-left: none;
+    background-color: #3b82f6;
+    color: white;
+    padding: 8px 12px;
+    cursor: pointer;
 }
 
 .search-box input:focus {
@@ -332,6 +367,26 @@ foreach ($cases as $index => $case) {
 .btn-success:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-info {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+}
+
+.btn-info:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+}
+
+.btn-warning:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
 }
 
 /* Loading state */
@@ -484,34 +539,56 @@ function showToast(message, type = 'success', duration = 5000) {
 // Realtime filtering
 let filterTimeout;
 
+// Function to parse date from DD/MM/YYYY HH:MM format
+function parseDateFromText(dateText) {
+    // Extract date and time from text like "19/10/2025 09:32"
+    const match = dateText.match(/(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2})/);
+    if (match) {
+        const [, day, month, year, hour, minute] = match;
+        // Create date object with MM/DD/YYYY format (JavaScript standard)
+        const dateObj = new Date(`${month}/${day}/${year} ${hour}:${minute}`);
+        console.log(`Parsed date: ${dateText} -> ${dateObj.toISOString()}`);
+        return dateObj;
+    }
+    console.log(`Failed to parse date: ${dateText}`);
+    return new Date(0); // Return epoch if parsing fails
+}
+
 function applyFilters() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const categoryFilter = document.getElementById('categoryFilter').value;
+    const locationFilter = document.getElementById('categoryFilter').value;
     const statusFilter = document.getElementById('statusFilter').value;
     const sortFilter = document.getElementById('sortFilter').value;
+    
+    console.log("Applying filters - Search:", searchTerm, "Location:", locationFilter, "Status:", statusFilter, "Sort:", sortFilter);
     
     const caseCards = document.querySelectorAll('.case-card');
     let visibleCount = 0;
     
-    caseCards.forEach(card => {
+    caseCards.forEach((card, index) => {
         const title = card.querySelector('h4 a').textContent.toLowerCase();
         const description = card.querySelector('p').textContent.toLowerCase();
-        const category = card.dataset.category;
+        const location = card.dataset.location;
         const status = card.dataset.status;
         
-        // Search filter
+        // Search filter - improved to search in all text content
+        const cardText = card.textContent.toLowerCase();
         const matchesSearch = !searchTerm || 
+            cardText.includes(searchTerm) || 
             title.includes(searchTerm) || 
             description.includes(searchTerm);
         
-        // Category filter
-        const matchesCategory = !categoryFilter || category === categoryFilter;
+        // Location filter - exact match to prevent cross-contamination
+        const matchesLocation = !locationFilter || locationFilter === "" || 
+            (locationFilter === "transmisi_pangkalanbun" && location && location.toLowerCase() === "transmisi pangkalanbun") ||
+            (locationFilter === "transmisi_sampit" && location && location.toLowerCase() === "transmisi sampit") ||
+            (locationFilter === "transmisi_palangkaraya" && location && location.toLowerCase() === "transmisi palangkaraya");
         
-        // Status filter
-        const matchesStatus = !statusFilter || status === statusFilter;
+        // Status filter - improved with empty check
+        const matchesStatus = !statusFilter || statusFilter === "" || status === statusFilter;
         
         // Show/hide card
-        if (matchesSearch && matchesCategory && matchesStatus) {
+        if (matchesSearch && matchesLocation && matchesStatus) {
             card.style.display = 'block';
             visibleCount++;
         } else {
@@ -519,12 +596,11 @@ function applyFilters() {
         }
     });
     
-    // Show empty state if no results
-    const emptyState = document.querySelector('.empty-state');
+    // Tampilkan pesan jika tidak ada hasil, tapi jangan mengganti seluruh konten
+    const emptyStateContainer = document.getElementById('emptyStateContainer');
     if (visibleCount === 0) {
-        if (!emptyState) {
-            const casesList = document.getElementById('casesList');
-            casesList.innerHTML = `
+        // Tampilkan pesan tidak ada hasil
+        emptyStateContainer.innerHTML = `
                 <div class="empty-state">
                     <i class="fas fa-clipboard-list"></i>
                     <h3>Tidak ada laporan ditemukan</h3>
@@ -535,39 +611,47 @@ function applyFilters() {
                     </a>
                 </div>
             `;
-        }
-    } else if (emptyState) {
-        emptyState.remove();
+        emptyStateContainer.style.display = 'block';
+    } else {
+        // Sembunyikan pesan jika ada hasil
+        emptyStateContainer.style.display = 'none';
+        emptyStateContainer.innerHTML = '';
     }
     
-    // Apply sorting
+    // Apply sorting - improved to handle all cases
     if (sortFilter) {
         const cardsArray = Array.from(caseCards).filter(card => card.style.display !== 'none');
-        const casesList = document.getElementById('casesList');
         
         cardsArray.sort((a, b) => {
             if (sortFilter === 'created_at DESC') {
-                const dateA = new Date(a.querySelector('.case-date').textContent);
-                const dateB = new Date(b.querySelector('.case-date').textContent);
+                // Parse date from DD/MM/YYYY HH:MM format
+                const dateA = parseDateFromText(a.querySelector('.case-date').textContent);
+                const dateB = parseDateFromText(b.querySelector('.case-date').textContent);
                 return dateB - dateA;
             } else if (sortFilter === 'created_at ASC') {
-                const dateA = new Date(a.querySelector('.case-date').textContent);
-                const dateB = new Date(b.querySelector('.case-date').textContent);
+                // Parse date from DD/MM/YYYY HH:MM format
+                const dateA = parseDateFromText(a.querySelector('.case-date').textContent);
+                const dateB = parseDateFromText(b.querySelector('.case-date').textContent);
                 return dateA - dateB;
             } else if (sortFilter === 'title ASC') {
                 const titleA = a.querySelector('h4 a').textContent.toLowerCase();
                 const titleB = b.querySelector('h4 a').textContent.toLowerCase();
                 return titleA.localeCompare(titleB);
-            } else if (sortFilter === 'priority DESC') {
-                const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
-                const priorityA = priorityOrder[a.dataset.priority] || 0;
-                const priorityB = priorityOrder[b.dataset.priority] || 0;
-                return priorityB - priorityA;
+            } else if (sortFilter === 'damage_condition DESC') {
+                // Sort by damage condition: severe > moderate > light
+                const damageOrder = { 'severe': 3, 'moderate': 2, 'light': 1 };
+                const damageA = damageOrder[a.dataset.damageCondition] || 0;
+                const damageB = damageOrder[b.dataset.damageCondition] || 0;
+                return damageB - damageA;
             }
             return 0;
         });
         
-        cardsArray.forEach(card => casesList.appendChild(card));
+        // Reorder cards in DOM
+        const casesList = document.getElementById('casesList');
+        cardsArray.forEach(card => {
+            casesList.appendChild(card);
+        });
     }
 }
 
@@ -589,6 +673,11 @@ document.addEventListener('DOMContentLoaded', function() {
         filterTimeout = setTimeout(applyFilters, 300);
     });
     
+    // Search button click
+    searchButton.addEventListener('click', function() {
+        applyFilters();
+    });
+    
     // Immediate filter on dropdown change
     categoryFilter.addEventListener('change', applyFilters);
     statusFilter.addEventListener('change', applyFilters);
@@ -600,6 +689,7 @@ document.addEventListener('DOMContentLoaded', function() {
         categoryFilter.value = '';
         statusFilter.value = '';
         sortFilter.value = 'created_at DESC';
+        console.log("Filters reset");
         applyFilters();
         showToast('Filter telah direset', 'success');
     });
@@ -759,6 +849,142 @@ document.addEventListener('DOMContentLoaded', function() {
 function deleteCase(id) {
     if (confirm('Apakah Anda yakin ingin menghapus laporan ini?')) {
         window.location.href = `index.php?page=cases/delete&id=${id}`;
+    }
+}
+
+// Function untuk download surat laporan dengan error handling
+function downloadSurat(url) {
+    try {
+        // Show loading indicator
+        const originalText = event.target.innerHTML;
+        event.target.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        event.target.disabled = true;
+        
+        // Use fetch for better error handling
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                // Check if response is JSON (error) or file
+                const contentType = response.headers.get('content-type');
+                
+                if (contentType && contentType.includes('application/json')) {
+                    // Handle JSON error response
+                    return response.json().then(data => {
+                        throw new Error(data.error || 'Unknown error occurred');
+                    });
+                } else {
+                    // Handle file download
+                    return response.blob();
+                }
+            })
+            .then(blob => {
+                // Create download link
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = downloadUrl;
+                link.download = 'Laporan_Kerusakan.xlsx';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(downloadUrl);
+                
+                // Reset button
+                event.target.innerHTML = originalText;
+                event.target.disabled = false;
+                
+                // Show success message
+                showToast('Surat laporan berhasil diunduh!', 'success', 3000);
+            })
+            .catch(error => {
+                console.error('Download error:', error);
+                
+                // Reset button
+                event.target.innerHTML = originalText;
+                event.target.disabled = false;
+                
+                // Show error message
+                showToast(error.message || 'Template surat tidak ditemukan, hubungi admin untuk memperbaiki file template.', 'error');
+            });
+        
+    } catch (error) {
+        console.error('Download error:', error);
+        
+        // Reset button
+        event.target.innerHTML = originalText;
+        event.target.disabled = false;
+        
+        showToast('Terjadi kesalahan saat mengunduh surat. Silakan coba lagi.', 'error');
+    }
+}
+
+// Function untuk download surat PDF
+function downloadSuratPDF(url) {
+    try {
+        // Show loading indicator
+        const originalText = event.target.innerHTML;
+        event.target.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
+        event.target.disabled = true;
+        
+        // Use fetch for better error handling
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                // Check if response is JSON (error) or file
+                const contentType = response.headers.get('content-type');
+                
+                if (contentType && contentType.includes('application/json')) {
+                    // Handle JSON error response
+                    return response.json().then(data => {
+                        throw new Error(data.error || 'Unknown error occurred');
+                    });
+                } else {
+                    // Handle file download
+                    return response.blob();
+                }
+            })
+            .then(blob => {
+                // Create download link
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = downloadUrl;
+                link.download = 'Laporan_Kerusakan.pdf';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(downloadUrl);
+                
+                // Reset button
+                event.target.innerHTML = originalText;
+                event.target.disabled = false;
+                
+                // Show success message
+                showToast('Surat laporan PDF berhasil diunduh!', 'success', 3000);
+            })
+            .catch(error => {
+                console.error('Download PDF error:', error);
+                
+                // Reset button
+                event.target.innerHTML = originalText;
+                event.target.disabled = false;
+                
+                // Show error message
+                showToast(error.message || 'Template surat tidak ditemukan. Silakan hubungi admin SIPETRA.', 'error');
+            });
+        
+    } catch (error) {
+        console.error('Download PDF error:', error);
+        
+        // Reset button
+        event.target.innerHTML = originalText;
+        event.target.disabled = false;
+        
+        showToast('Terjadi kesalahan saat mengunduh surat PDF. Silakan coba lagi.', 'error');
     }
 }
 </script> 

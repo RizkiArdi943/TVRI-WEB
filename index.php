@@ -96,6 +96,25 @@ switch ($page) {
         include __DIR__ . '/views/profile/index.php';
         include __DIR__ . '/views/layouts/footer.php';
         break;
+    case 'users':
+        // Check if user is admin
+        if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
+            include __DIR__ . '/views/layouts/header.php';
+            include __DIR__ . '/views/users/index.php';
+            include __DIR__ . '/views/layouts/footer.php';
+        } else {
+            header('Location: index.php?page=login');
+            exit();
+        }
+        break;
+    case 'users/create':
+        // Controller-only route (no layout)
+        include __DIR__ . '/views/users/create_clean.php';
+        break;
+    case 'users/get':
+        // Controller-only route (no layout)
+        include __DIR__ . '/views/users/get_clean.php';
+        break;
     case 'export':
         // Controller-only route (no layout)
         include __DIR__ . '/controllers/export.php';
@@ -115,5 +134,122 @@ switch ($page) {
 // Flush output buffer
 ob_end_flush();
 ?>
+
+<script src='https://cdn.jotfor.ms/agent/embedjs/01995dd1132d76b89c409a5f5c4e50b3aeea/embed.js'></script>
+        break;
+
+    case 'member/profile':
+
+        if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'user') {
+
+            include __DIR__ . '/views/member/profile.php';
+
+        } else {
+
+            header('Location: index.php?page=login');
+
+            exit();
+
+        }
+
+        break;
+
+    case 'cases':
+
+        include __DIR__ . '/views/layouts/header.php';
+
+        include __DIR__ . '/views/cases/index.php';
+
+        include __DIR__ . '/views/layouts/footer.php';
+
+        break;
+
+    case 'cases/create':
+
+        include __DIR__ . '/views/layouts/header.php';
+
+        include __DIR__ . '/views/cases/create.php';
+
+        include __DIR__ . '/views/layouts/footer.php';
+
+        break;
+
+    case 'cases/edit':
+
+        include __DIR__ . '/views/layouts/header.php';
+
+        include __DIR__ . '/views/cases/edit.php';
+
+        include __DIR__ . '/views/layouts/footer.php';
+
+        break;
+
+    case 'cases/view':
+
+        include __DIR__ . '/views/layouts/header.php';
+
+        include __DIR__ . '/views/cases/view.php';
+
+        include __DIR__ . '/views/layouts/footer.php';
+
+        break;
+
+    case 'cases/delete':
+
+        // Controller-only route (no layout)
+
+        include __DIR__ . '/controllers/cases/delete.php';
+
+        break;
+
+    case 'profile':
+
+        include __DIR__ . '/views/layouts/header.php';
+
+        include __DIR__ . '/views/profile/index.php';
+
+        include __DIR__ . '/views/layouts/footer.php';
+
+        break;
+
+    case 'export':
+
+        // Controller-only route (no layout)
+
+        include __DIR__ . '/controllers/export.php';
+
+        break;
+
+    case 'error':
+
+        include __DIR__ . '/views/error.php';
+
+        break;
+
+    case 'logout':
+
+        include __DIR__ . '/controllers/logout.php';
+
+        break;
+
+    default:
+
+        header('Location: index.php?page=landing');
+
+        exit();
+
+}
+
+?> 
+
+<?php
+
+// Flush output buffer
+
+ob_end_flush();
+
+?>
+
+
 
 <script src='https://cdn.jotfor.ms/agent/embedjs/01995dd1132d76b89c409a5f5c4e50b3aeea/embed.js'></script>

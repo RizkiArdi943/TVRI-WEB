@@ -11,6 +11,12 @@
             <i class="fas fa-list"></i>
             <span>Laporan</span>
         </a>
+        <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
+        <a href="index.php?page=users" class="nav-item <?php echo ($_GET['page'] ?? '') === 'users' ? 'active' : ''; ?>">
+            <i class="fas fa-users"></i>
+            <span>User</span>
+        </a>
+        <?php endif; ?>
         <a href="index.php?page=cases/create" class="nav-item <?php echo ($_GET['page'] ?? '') === 'cases/create' ? 'active' : ''; ?>">
             <i class="fas fa-plus"></i>
             <span>Tambah</span>
