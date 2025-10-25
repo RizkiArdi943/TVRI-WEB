@@ -213,7 +213,7 @@ foreach ($cases as $index => $case) {
                             <i class="fas fa-eye"></i>
                             Detail
                         </a>
-                        <a href="controllers/download_surat.php?id=<?php echo $case['id']; ?>" class="btn btn-sm btn-warning" onclick="downloadSurat(this.href); return false;">
+                        <a href="controllers/download_surat.php?id=<?php echo $case['id']; ?>&v=<?php echo time(); ?>" class="btn btn-sm btn-warning" onclick="downloadSurat(this.href); return false;">
                             <i class="fas fa-file-excel"></i>
                             Download Surat
                         </a>

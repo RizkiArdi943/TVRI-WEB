@@ -71,8 +71,13 @@ function generateSuratExcel($case) {
             ob_end_clean();
         }
         
+        // Log untuk debug
+        error_log('Generating Excel for case ID: ' . ($case['id'] ?? 'unknown'));
+        error_log('Case title: ' . ($case['title'] ?? 'unknown'));
+        
         // Generate filename
         $filename = generateFilename($case, 'xlsx');
+        error_log('Generated filename: ' . $filename);
         
         // Path to template
         $templatePath = __DIR__ . '/../templates/Template Laporan Kerusakan Peralatan.xlsx';
@@ -90,8 +95,9 @@ function generateSuratExcel($case) {
         // Set headers for download
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="' . $filename . '"');
-        header('Cache-Control: max-age=0');
-        header('Pragma: public');
+        header('Cache-Control: no-cache, no-store, must-revalidate');
+        header('Pragma: no-cache');
+        header('Expires: 0');
         header('Access-Control-Expose-Headers: Content-Disposition');
         
         // Output Excel file
