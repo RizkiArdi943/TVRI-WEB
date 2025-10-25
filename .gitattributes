@@ -1,0 +1,12 @@
+# Ensure composer files are tracked
+vendor/composer/platform_check.php export-ignore
+vendor/composer/autoload_*.php export-ignore
+vendor/composer/ClassLoader.php export-ignore
+vendor/composer/autoload_real.php export-ignore
+vendor/composer/autoload_static.php export-ignore
+
+# Keep PhpSpreadsheet files
+vendor/phpoffice/ export-ignore
+
+# Keep all vendor files for Vercel deployment
+vendor/ export-ignore

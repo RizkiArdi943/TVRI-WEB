@@ -23,6 +23,5 @@ cookies.txt
 # Ignore data files
 data/*.txt
 
-# Ignore development dependencies
-vendor/composer/installed.json
-vendor/composer/installed.php
+# Keep essential composer files for deployment
+# vendor/composer/platform_check.php is needed for Vercel
