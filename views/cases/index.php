@@ -213,13 +213,9 @@ foreach ($cases as $index => $case) {
                             <i class="fas fa-eye"></i>
                             Detail
                         </a>
-                        <a href="controllers/download_surat.php?id=<?php echo $case['id']; ?>" class="btn btn-sm btn-info" onclick="downloadSurat(this.href); return false;">
-                            <i class="fas fa-file-download"></i>
-                            📄 Download Surat
-                        </a>
-                        <a href="controllers/download_surat_pdf.php?id=<?php echo $case['id']; ?>" class="btn btn-sm btn-warning" onclick="downloadSuratPDF(this.href); return false;">
-                            <i class="fas fa-file-pdf"></i>
-                            📄 Download Surat (PDF)
+                        <a href="controllers/download_surat.php?id=<?php echo $case['id']; ?>" class="btn btn-sm btn-warning" onclick="downloadSurat(this.href); return false;">
+                            <i class="fas fa-file-excel"></i>
+                            Download Surat
                         </a>
                         <a href="index.php?page=cases/edit&id=<?php echo $case['id']; ?>" class="btn btn-sm btn-primary">
                             <i class="fas fa-edit"></i>
@@ -857,7 +853,7 @@ function downloadSurat(url) {
     try {
         // Show loading indicator
         const originalText = event.target.innerHTML;
-        event.target.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        // event.target.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
         event.target.disabled = true;
         
         // Use fetch for better error handling
@@ -876,16 +872,27 @@ function downloadSurat(url) {
                         throw new Error(data.error || 'Unknown error occurred');
                     });
                 } else {
-                    // Handle file download
-                    return response.blob();
+                    // Handle file download - return both blob and response for filename
+                    return Promise.all([response.blob(), response]);
                 }
             })
-            .then(blob => {
+            .then(([blob, response]) => {
                 // Create download link
                 const downloadUrl = window.URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = downloadUrl;
-                link.download = 'Laporan_Kerusakan.xlsx';
+                
+                // Get filename from Content-Disposition header or use default
+                const contentDisposition = response.headers.get('content-disposition');
+                let filename = 'Laporan_Kerusakan.xlsx';
+                if (contentDisposition) {
+                    const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+                    if (filenameMatch) {
+                        filename = filenameMatch[1];
+                    }
+                }
+                
+                link.download = filename;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
