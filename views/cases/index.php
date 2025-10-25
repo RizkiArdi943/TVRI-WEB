@@ -895,9 +895,11 @@ function downloadSurat(url) {
                 // Debug: log headers for troubleshooting
                 console.log('Content-Disposition:', contentDisposition);
                 console.log('Extracted filename:', filename);
+                console.log('All response headers:', response.headers);
                 
                 // Fallback: try to extract filename from URL if header is not available
                 if (filename === 'Laporan_Kerusakan.xlsx') {
+                    console.log('Using fallback filename generation');
                     const urlParams = new URLSearchParams(url.split('?')[1]);
                     const caseId = urlParams.get('id');
                     if (caseId) {
@@ -905,7 +907,10 @@ function downloadSurat(url) {
                         const now = new Date();
                         const dateStr = now.toISOString().split('T')[0];
                         filename = `Laporan_Kerusakan_${caseId}_${dateStr}.xlsx`;
+                        console.log('Fallback filename generated:', filename);
                     }
+                } else {
+                    console.log('Using server-provided filename:', filename);
                 }
                 
                 link.download = filename;
