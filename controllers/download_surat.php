@@ -66,15 +66,13 @@ try {
  */
 function generateSuratExcel($case) {
     try {
+        // Clear any previous output
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        
         // Generate filename
         $filename = generateFilename($case, 'xlsx');
-        
-        // Set headers for download
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
-        header('Cache-Control: max-age=0');
-        header('Pragma: public');
-        header('Access-Control-Expose-Headers: Content-Disposition');
         
         // Path to template
         $templatePath = __DIR__ . '/../templates/Template Laporan Kerusakan Peralatan.xlsx';
@@ -86,9 +84,38 @@ function generateSuratExcel($case) {
         // Load template and create new Excel with mapped data
         $spreadsheet = createExcelFromTemplate($templatePath, $case);
         
-        // Create writer and output
+        // Create writer
         $writer = new Xlsx($spreadsheet);
-        $writer->save('php://output');
+        
+        // Set headers for download
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        header('Pragma: public');
+        header('Access-Control-Expose-Headers: Content-Disposition');
+        
+        // Output Excel file
+        try {
+            // Create temporary file first to ensure validity
+            $tempFile = tempnam(sys_get_temp_dir(), 'excel_');
+            $writer->save($tempFile);
+            
+            // Verify file is valid
+            if (!file_exists($tempFile) || filesize($tempFile) === 0) {
+                throw new Exception('Generated Excel file is invalid or empty');
+            }
+            
+            // Read and output file
+            $fileContent = file_get_contents($tempFile);
+            echo $fileContent;
+            
+            // Clean up
+            unlink($tempFile);
+            
+        } catch (Exception $e) {
+            error_log('Error saving Excel: ' . $e->getMessage());
+            sendErrorResponse('Terjadi kesalahan saat menyimpan file Excel: ' . $e->getMessage());
+        }
         exit();
         
     } catch (Exception $e) {
@@ -111,7 +138,17 @@ function createExcelFromTemplate($templatePath, $case) {
         
         // Apply mapping to specific cells
         foreach ($mappedData as $cellCoordinate => $value) {
-            $worksheet->setCellValue($cellCoordinate, $value);
+            try {
+                $worksheet->setCellValue($cellCoordinate, $value);
+            } catch (Exception $e) {
+                error_log("Error setting cell $cellCoordinate: " . $e->getMessage());
+                // Continue with other cells
+            }
+        }
+        
+        // Validate spreadsheet
+        if (!$spreadsheet) {
+            throw new Exception('Failed to create spreadsheet');
         }
         
         return $spreadsheet;
