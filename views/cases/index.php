@@ -134,7 +134,7 @@ foreach ($cases as $index => $case) {
             </div>
         <?php else: ?>
             <?php foreach ($cases as $case): ?>
-                <div class="case-card" data-category="<?php echo $case['category_id']; ?>" data-location="<?php echo htmlspecialchars($case['location']); ?>" data-status="<?php echo $case['status']; ?>" data-priority="<?php echo $case['priority']; ?>" data-damage-condition="<?php echo $case['damage_condition']; ?>">
+                <div class="case-card" data-category="<?php echo $case['category_id']; ?>" data-location="<?php echo htmlspecialchars($case['location']); ?>" data-status="<?php echo $case['status']; ?>" data-priority="<?php echo $case['priority']; ?>">
                     <div class="case-header">
                         <div class="case-category" style="background-color: <?php echo $case['category_color']; ?>">
                             <?php echo htmlspecialchars($case['category_name']); ?>
