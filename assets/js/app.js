@@ -15,6 +15,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Form validation
     const forms = document.querySelectorAll('form');
     forms.forEach(form => {
+        // Skip validation if form has data-no-js-validation attribute
+        if (form.dataset.noJsValidation === 'true') {
+            return;
+        }
+        
         form.addEventListener('submit', function(e) {
             const requiredFields = form.querySelectorAll('[required]');
             let isValid = true;
@@ -156,6 +161,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitButtons = document.querySelectorAll('button[type="submit"]');
     submitButtons.forEach(button => {
         button.addEventListener('click', function() {
+            // Skip loading state if button has data-no-loading attribute
+            if (this.dataset.noLoading === 'true') {
+                return;
+            }
+            
             if (this.form && this.form.checkValidity()) {
                 // Store original content
                 this.dataset.originalContent = this.innerHTML;

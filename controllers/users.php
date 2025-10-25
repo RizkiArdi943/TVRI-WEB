@@ -96,7 +96,7 @@ class UsersController {
         $data['updated_at'] = date('Y-m-d H:i:s');
         
         // Update database
-        $result = $this->db->update('users', $id, $data);
+        $result = $this->db->update('users', $data, $id);
         
         if ($result) {
             return [

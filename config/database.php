@@ -42,7 +42,7 @@ class Database {
         $this->port     = '3306';
         $this->dbname   = 'tvri_ticketing';
         $this->username = 'root';
-        $this->password = '';
+        $this->password = 'password';
         $this->sslCa    = null; // tidak menggunakan SSL untuk local
     }
 
@@ -102,7 +102,7 @@ class Database {
         }
     }
 
-    public function update($table, $id, $data) {
+    public function update($table, $data, $id) {
         try {
             $data['updated_at'] = date('Y-m-d H:i:s');
 

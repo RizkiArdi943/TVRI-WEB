@@ -16,6 +16,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
 // Start session
 if (session_status() === PHP_SESSION_NONE) {
@@ -152,6 +153,22 @@ function createExcelFromTemplate($templatePath, $case) {
             }
         }
         
+        // Handle image insertion if available
+        if (!empty($case['image_path'])) {
+            $imageInserted = insertImageToExcel($worksheet, $case['image_path']);
+            
+            // If image insertion failed, add text fallback
+            if (!$imageInserted) {
+                $imageText = 'Gambar tersedia: ' . basename($case['image_path']) . ' (tidak dapat disisipkan)';
+                $worksheet->setCellValue('B26', $imageText);
+            } else {
+                // Clear B26 cell since image is successfully inserted at B30
+                $worksheet->setCellValue('B26', '');
+            }
+        } else {
+            $worksheet->setCellValue('B26', 'Tidak ada gambar');
+        }
+        
         // Validate spreadsheet
         if (!$spreadsheet) {
             throw new Exception('Failed to create spreadsheet');
@@ -166,6 +183,82 @@ function createExcelFromTemplate($templatePath, $case) {
 }
 
 /**
+ * Insert image to Excel worksheet
+ */
+function insertImageToExcel($worksheet, $imagePath) {
+    try {
+        // Determine actual image path
+        $actualImagePath = null;
+        $tempFile = null;
+        
+        // Check if it's a local file first
+        $localPath = __DIR__ . '/../uploads/' . basename($imagePath);
+        if (file_exists($localPath)) {
+            $actualImagePath = $localPath;
+            error_log('Using local image: ' . $actualImagePath);
+        } else {
+            // Check if it's a Vercel Blob URL or any HTTP URL
+            if (strpos($imagePath, 'http') === 0) {
+                // Download image from URL to temporary file
+                $tempFile = tempnam(sys_get_temp_dir(), 'excel_img_');
+                $imageContent = file_get_contents($imagePath);
+                if ($imageContent !== false) {
+                    file_put_contents($tempFile, $imageContent);
+                    $actualImagePath = $tempFile;
+                    error_log('Downloaded image from URL: ' . $imagePath);
+                } else {
+                    error_log('Failed to download image from URL: ' . $imagePath);
+                    return false;
+                }
+            } else {
+                // Try direct path
+                if (file_exists($imagePath)) {
+                    $actualImagePath = $imagePath;
+                } else {
+                    error_log('Image not found: ' . $imagePath);
+                    return false;
+                }
+            }
+        }
+        
+        if (!$actualImagePath || !file_exists($actualImagePath)) {
+            error_log('Image path is invalid or file does not exist: ' . $actualImagePath);
+            return false;
+        }
+        
+        // Create drawing object
+        $drawing = new Drawing();
+        $drawing->setName('Case Image');
+        $drawing->setDescription('Gambar laporan kerusakan');
+        $drawing->setPath($actualImagePath);
+        
+        // Set position (B30 area for image - below the text area)
+        $drawing->setCoordinates('B30');
+        $drawing->setOffsetX(0);
+        $drawing->setOffsetY(0);
+        
+        // Set size (adjust as needed - smaller to fit better)
+        $drawing->setWidth(250);
+        $drawing->setHeight(150);
+        
+        // Add to worksheet using the correct method
+        $worksheet->getDrawingCollection()->append($drawing);
+        
+        // Clean up temp file if created
+        if ($tempFile && file_exists($tempFile)) {
+            unlink($tempFile);
+        }
+        
+        error_log('Image successfully inserted into Excel');
+        return true;
+        
+    } catch (Exception $e) {
+        error_log('Error inserting image: ' . $e->getMessage());
+        return false;
+    }
+}
+
+/**
  * Map case data to template structure
  * Mapping sesuai dengan permintaan user:
  * E10 = lokasi
@@ -174,21 +267,10 @@ function createExcelFromTemplate($templatePath, $case) {
  * E13 = Model
  * E14 = S/N
  * B18 = Deskripsi
- * B26 = Gambar
+ * B26 = Gambar (akan disisipkan sebagai gambar, bukan teks)
  * B56 = Pelapor
  */
 function mapCaseDataToTemplate($case) {
-    // Handle image path
-    $imageText = 'Tidak ada gambar';
-    if (!empty($case['image_path'])) {
-        $imagePath = __DIR__ . '/../uploads/' . basename($case['image_path']);
-        if (file_exists($imagePath)) {
-            $imageText = 'Gambar tersedia: ' . basename($case['image_path']);
-        } else {
-            $imageText = 'Gambar tidak ditemukan: ' . basename($case['image_path']);
-        }
-    }
-    
     return [
         'E10' => $case['location'] ?? 'N/A',                    // lokasi
         'E11' => formatDate($case['damage_date'] ?? 'N/A'),    // Tanggal Kerusakan
@@ -196,7 +278,6 @@ function mapCaseDataToTemplate($case) {
         'E13' => $case['model'] ?? '-',                         // Model
         'E14' => $case['serial_number'] ?? '-',                // S/N
         'B18' => $case['description'] ?? 'N/A',                // Deskripsi
-        'B26' => $imageText,                                   // Gambar (dengan status yang benar)
         'B56' => $case['reporter_name'] ?? 'Administrator'     // Pelapor (nama user yang benar)
     ];
 }

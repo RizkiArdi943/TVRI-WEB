@@ -113,12 +113,8 @@ $priorityLabels = [
                     <div class="info-row">
                         <strong>Kondisi Kerusakan:</strong> 
                         <?php 
-                        $conditionLabels = [
-                            'light' => 'Rusak Ringan',
-                            'moderate' => 'Rusak Sedang', 
-                            'severe' => 'Rusak Berat'
-                        ];
-                        echo $conditionLabels[$case['damage_condition']] ?? 'Tidak ada data';
+                        // Field damage_condition tidak ada di database
+                        echo 'Tidak tersedia';
                         ?>
                     </div>
                 </div>

@@ -100,10 +100,6 @@ foreach ($cases as $index => $case) {
                     <i class="fas fa-download"></i>
                     Export CSV
                 </button>
-                <button type="button" id="exportExcelBtn" class="btn btn-success">
-                    <i class="fas fa-file-excel"></i>
-                    Export Excel
-                </button>
             </div>
         </div>
     </div>
