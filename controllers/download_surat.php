@@ -74,6 +74,7 @@ function generateSuratExcel($case) {
         header('Content-Disposition: attachment; filename="' . $filename . '"');
         header('Cache-Control: max-age=0');
         header('Pragma: public');
+        header('Access-Control-Expose-Headers: Content-Disposition');
         
         // Path to template
         $templatePath = __DIR__ . '/../templates/Template Laporan Kerusakan Peralatan.xlsx';

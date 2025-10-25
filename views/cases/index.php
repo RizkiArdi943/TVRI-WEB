@@ -892,6 +892,22 @@ function downloadSurat(url) {
                     }
                 }
                 
+                // Debug: log headers for troubleshooting
+                console.log('Content-Disposition:', contentDisposition);
+                console.log('Extracted filename:', filename);
+                
+                // Fallback: try to extract filename from URL if header is not available
+                if (filename === 'Laporan_Kerusakan.xlsx') {
+                    const urlParams = new URLSearchParams(url.split('?')[1]);
+                    const caseId = urlParams.get('id');
+                    if (caseId) {
+                        // Generate filename based on case ID and current date
+                        const now = new Date();
+                        const dateStr = now.toISOString().split('T')[0];
+                        filename = `Laporan_Kerusakan_${caseId}_${dateStr}.xlsx`;
+                    }
+                }
+                
                 link.download = filename;
                 document.body.appendChild(link);
                 link.click();
