@@ -178,6 +178,17 @@ function createExcelFromTemplate($templatePath, $case) {
  * B56 = Pelapor
  */
 function mapCaseDataToTemplate($case) {
+    // Handle image path
+    $imageText = 'Tidak ada gambar';
+    if (!empty($case['image_path'])) {
+        $imagePath = __DIR__ . '/../uploads/' . basename($case['image_path']);
+        if (file_exists($imagePath)) {
+            $imageText = 'Gambar tersedia: ' . basename($case['image_path']);
+        } else {
+            $imageText = 'Gambar tidak ditemukan: ' . basename($case['image_path']);
+        }
+    }
+    
     return [
         'E10' => $case['location'] ?? 'N/A',                    // lokasi
         'E11' => formatDate($case['damage_date'] ?? 'N/A'),    // Tanggal Kerusakan
@@ -185,7 +196,7 @@ function mapCaseDataToTemplate($case) {
         'E13' => $case['model'] ?? '-',                         // Model
         'E14' => $case['serial_number'] ?? '-',                // S/N
         'B18' => $case['description'] ?? 'N/A',                // Deskripsi
-        'B26' => 'Gambar tidak dapat dimuat',                 // Gambar (placeholder)
+        'B26' => $imageText,                                   // Gambar (dengan status yang benar)
         'B56' => $case['reporter_name'] ?? 'Administrator'     // Pelapor (nama user yang benar)
     ];
 }
