@@ -42,7 +42,7 @@ class Database {
         $this->port     = '3306';
         $this->dbname   = 'tvri_ticketing';
         $this->username = 'root';
-        $this->password = 'password';
+        $this->password = '';
         $this->sslCa    = null; // tidak menggunakan SSL untuk local
     }
 
