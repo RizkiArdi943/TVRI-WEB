@@ -35,17 +35,23 @@ class Gnumeric extends BaseReader
 
     /**
      * Shared Expressions.
+     *
+     * @var array
      */
-    private array $expressions = [];
+    private $expressions = [];
 
     /**
      * Spreadsheet shared across all functions.
+     *
+     * @var Spreadsheet
      */
-    private Spreadsheet $spreadsheet;
+    private $spreadsheet;
 
-    private ReferenceHelper $referenceHelper;
+    /** @var ReferenceHelper */
+    private $referenceHelper;
 
-    public static array $mappings = [
+    /** @var array */
+    public static $mappings = [
         'dataType' => [
             '10' => DataType::TYPE_NULL,
             '20' => DataType::TYPE_BOOL,
@@ -76,7 +82,7 @@ class Gnumeric extends BaseReader
         $data = null;
         if (File::testFileNoThrow($filename)) {
             $data = $this->gzfileGetContents($filename);
-            if (!str_contains($data, self::NAMESPACE_GNM)) {
+            if (strpos($data, self::NAMESPACE_GNM) === false) {
                 $data = '';
             }
         }
@@ -93,8 +99,12 @@ class Gnumeric extends BaseReader
 
     /**
      * Reads names of the worksheets from a file, without parsing the whole file to a Spreadsheet object.
+     *
+     * @param string $filename
+     *
+     * @return array
      */
-    public function listWorksheetNames(string $filename): array
+    public function listWorksheetNames($filename)
     {
         File::assertFile($filename);
         if (!$this->canRead($filename)) {
@@ -122,8 +132,12 @@ class Gnumeric extends BaseReader
 
     /**
      * Return worksheet info (Name, Last Column Letter, Last Column Index, Total Rows, Total Columns).
+     *
+     * @param string $filename
+     *
+     * @return array
      */
-    public function listWorksheetInfo(string $filename): array
+    public function listWorksheetInfo($filename)
     {
         File::assertFile($filename);
         if (!$this->canRead($filename)) {
@@ -169,12 +183,17 @@ class Gnumeric extends BaseReader
         return $worksheetInfo;
     }
 
-    private function gzfileGetContents(string $filename): string
+    /**
+     * @param string $filename
+     *
+     * @return string
+     */
+    private function gzfileGetContents($filename)
     {
         $data = '';
         $contents = @file_get_contents($filename);
         if ($contents !== false) {
-            if (str_starts_with($contents, "\x1f\x8b")) {
+            if (substr($contents, 0, 2) === "\x1f\x8b") {
                 // Check if gzlib functions are available
                 if (function_exists('gzdecode')) {
                     $contents = @gzdecode($contents);
@@ -213,7 +232,10 @@ class Gnumeric extends BaseReader
         }
     }
 
-    private static function testSimpleXml(mixed $value): SimpleXMLElement
+    /**
+     * @param mixed $value
+     */
+    private static function testSimpleXml($value): SimpleXMLElement
     {
         return ($value instanceof SimpleXMLElement) ? $value : new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><root></root>');
     }
@@ -244,16 +266,13 @@ class Gnumeric extends BaseReader
 
         $gFileData = $this->gzfileGetContents($filename);
 
-        /** @var XmlScanner */
-        $securityScanner = $this->securityScanner;
-        $xml2 = simplexml_load_string($securityScanner->scan($gFileData));
+        $xml2 = simplexml_load_string($gFileData);
         $xml = self::testSimpleXml($xml2);
 
         $gnmXML = $xml->children(self::NAMESPACE_GNM);
         (new Properties($this->spreadsheet))->readProperties($xml, $gnmXML);
 
         $worksheetID = 0;
-        $sheetCreated = false;
         foreach ($gnmXML->Sheets->Sheet as $sheetOrNull) {
             $sheet = self::testSimpleXml($sheetOrNull);
             $worksheetName = (string) $sheet->Name;
@@ -265,7 +284,6 @@ class Gnumeric extends BaseReader
 
             // Create new Worksheet
             $this->spreadsheet->createSheet();
-            $sheetCreated = true;
             $this->spreadsheet->setActiveSheetIndex($worksheetID);
             //    Use false for $updateFormulaCellReferences to prevent adjustment of worksheet references in formula
             //        cells... during the load, all formulae should be correct, and we're simply bringing the worksheet
@@ -317,9 +335,6 @@ class Gnumeric extends BaseReader
             $this->setSelectedCells($sheet);
             ++$worksheetID;
         }
-        if ($this->createBlankSheetIfNoneRead && !$sheetCreated) {
-            $this->spreadsheet->createSheet();
-        }
 
         $this->processDefinedNames($gnmXML);
 
@@ -365,7 +380,7 @@ class Gnumeric extends BaseReader
         //    Handle Merged Cells in this worksheet
         if ($sheet !== null && isset($sheet->MergedRegions)) {
             foreach ($sheet->MergedRegions->Merge as $mergeCells) {
-                if (str_contains((string) $mergeCells, ':')) {
+                if (strpos((string) $mergeCells, ':') !== false) {
                     $this->spreadsheet->getActiveSheet()->mergeCells($mergeCells, Worksheet::MERGE_CELL_CONTENT_HIDE);
                 }
             }
@@ -517,7 +532,7 @@ class Gnumeric extends BaseReader
             foreach ($gnmXML->Names->Name as $definedName) {
                 $name = (string) $definedName->name;
                 $value = (string) $definedName->value;
-                if (stripos($value, '#REF!') !== false || empty($value)) {
+                if (stripos($value, '#REF!') !== false) {
                     continue;
                 }
 
