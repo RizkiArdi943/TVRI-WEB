@@ -1003,4 +1003,4 @@ function downloadSuratPDF(url) {
         showToast('Terjadi kesalahan saat mengunduh surat PDF. Silakan coba lagi.', 'error');
     }
 }
-</script> 
+</script>

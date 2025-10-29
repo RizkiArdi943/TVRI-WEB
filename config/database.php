@@ -2,7 +2,7 @@
 class Database {
     private $pdo;
     // server mode: 'local' atau 'vercel'
-    private $server = 'vercel';
+    private $server = 'local';
     private $host = 'tvri-ticketing-tvripalangkaraya-8cb6.l.aivencloud.com';
     private $port = '25125';
     private $dbname = 'tvri-ticketing';

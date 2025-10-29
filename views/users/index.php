@@ -46,13 +46,7 @@ $users = $usersController->index();
                     
                     <div class="user-meta">
                         <div class="user-role role-<?php echo $user['role']; ?>">
-                            <?php 
-                            if ($user['role'] === 'admin') {
-                                echo 'Administrator';
-                            } else {
-                                echo 'User';
-                            }
-                            ?>
+                            <?php echo $user['role']; ?>
                         </div>
                         <div class="user-department">
                             <i class="fas fa-building"></i>

@@ -211,6 +211,8 @@ foreach ($cases as $index => $case) {
     </div>
 </div>
 
+
+
 <style>
 /* Enhanced Filter Styles */
 .filters-section {

@@ -247,7 +247,7 @@ class BrowserAuth {
             // Update user role
             const userRoleElements = document.querySelectorAll('.user-role');
             userRoleElements.forEach(el => {
-                el.textContent = user.role === 'admin' ? 'Administrator' : 'User';
+                // el.textContent = user.role === 'admin' ? 'Administrator' : 'User';
             });
         }
     }
