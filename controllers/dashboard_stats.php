@@ -5,7 +5,7 @@ class DashboardStats {
     private $db;
     
     public function __construct() {
-        global $database;
+        global $database; 
         $this->db = $database;
     }
     

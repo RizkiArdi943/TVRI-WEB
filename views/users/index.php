@@ -211,11 +211,13 @@ $users = $usersController->index();
 }
 
 .user-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: flex-end;
-    min-width: 200px;
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    align-items: center; /* vertical alignment */
+    justify-content: center;
+    gap: 12px; /* jarak antar elemen */
+    min-width: 0;
+    white-space: nowrap; /* cegah label terpotong ke dua baris */
 }
 
 .user-role {
@@ -246,9 +248,8 @@ $users = $usersController->index();
     font-size: 12px;
     display: flex;
     align-items: center;
-    gap: 5px;
-    justify-content: flex-end;
-    min-width: 100px;
+    gap: 6px;
+    padding: 0 6px; /* padding horizontal kecil agar rapi */
 }
 
 .user-date {
@@ -256,14 +257,46 @@ $users = $usersController->index();
     font-size: 12px;
     display: flex;
     align-items: center;
-    gap: 5px;
-    justify-content: flex-end;
-    min-width: 100px;
+    gap: 6px;
+    padding: 0 6px; /* padding horizontal kecil agar rapi */
 }
 
 .user-actions {
     display: flex;
     gap: 10px;
+}
+
+/* Responsif: pada layar kecil, izinkan label membungkus ke bawah dengan jarak seragam */
+@media (max-width: 640px) {
+    .user-card {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        flex-wrap: nowrap;
+    }
+    .user-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px; /* jarak antar baris di mobile */
+        white-space: normal; /* izinkan wrap di mobile */
+        justify-content: flex-start;
+    }
+    .user-actions {
+        margin-left: 0;
+        justify-content: flex-start;
+        width: 100%;
+    }
+    .page-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+    .page-header .btn-primary {
+        align-self: flex-start;
+    }
+    .users-page {
+        padding: 16px;
+    }
 }
 
 /* Modal Styles */

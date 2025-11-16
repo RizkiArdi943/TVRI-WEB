@@ -67,15 +67,6 @@ function getStatusInfo($status) {
     }
 }
 ?>
-
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Member - TVRI Kalimantan Tengah</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/assets/css/style.css">
     <style>
         .member-dashboard {
             background: #f8fafc;
@@ -202,15 +193,15 @@ function getStatusInfo($status) {
         
         .content-grid {
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: 1fr; /* penuh satu kolom */
             gap: 30px;
         }
         
         .recent-cases {
             background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
             border: 1px solid #e5e7eb;
         }
         
@@ -222,8 +213,8 @@ function getStatusInfo($status) {
         }
         
         .section-title {
-            font-size: 20px;
-            font-weight: 600;
+            font-size: 22px;
+            font-weight: 700;
             color: #1e40af;
         }
         
@@ -242,28 +233,29 @@ function getStatusInfo($status) {
         .case-item {
             display: flex;
             align-items: center;
-            gap: 15px;
-            padding: 15px;
+            gap: 18px;
+            padding: 18px;
             border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            transition: all 0.3s ease;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            transition: all 0.25s ease;
         }
         
         .case-item:hover {
             border-color: #3b82f6;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+            box-shadow: 0 8px 18px rgba(59, 130, 246, 0.12);
+            transform: translateY(-2px);
         }
         
         .case-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 16px;
+            font-size: 18px;
         }
         
         .case-content {
@@ -271,7 +263,7 @@ function getStatusInfo($status) {
         }
         
         .case-title {
-            font-weight: 600;
+            font-weight: 700;
             color: #1f2937;
             margin-bottom: 4px;
         }
@@ -344,31 +336,16 @@ function getStatusInfo($status) {
             }
         }
     </style>
-</head>
-<body>
-    <div class="member-dashboard">
-        <!-- Header -->
-        <div class="member-header">
-            <div class="member-header-content">
-                <div class="welcome-section">
-                    <div class="welcome-text">
-                        <h1>Selamat Datang, <?php echo htmlspecialchars($user_profile['full_name']); ?>!</h1>
-                        <p>Dashboard Member - TVRI Kalimantan Tengah</p>
-                    </div>
-                    
-                    <div class="user-info-card">
-                        <div class="user-avatar">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="user-name"><?php echo htmlspecialchars($user_profile['full_name']); ?></div>
-                        <div class="user-dept"><?php echo htmlspecialchars($user_profile['department'] ?? 'Tidak ada departemen'); ?></div>
-                    </div>
-                </div>
+
+    <!-- Header halaman mengikuti layout admin -->
+    <div class="page-header">
+        <div>
+            <h1>Dashboard</h1>
+            <p>Ringkasan aktivitas Anda</p>
             </div>
         </div>
         
-        <!-- Main Content -->
-        <div class="main-content">
+    <!-- Konten utama -->
             <!-- Statistics -->
             <div class="stats-grid">
                 <div class="stat-card">
@@ -385,24 +362,12 @@ function getStatusInfo($status) {
                 
                 <div class="stat-card">
                     <div class="stat-header">
-                        <div class="stat-icon" style="background: #10b981;">
-                            <i class="fas fa-check-circle"></i>
+                        <div class="stat-icon" style="background: #0ea5e9;">
+                            <i class="fas fa-calendar-alt"></i>
                         </div>
                         <div>
-                            <div class="stat-number"><?php echo $my_stats['completed_cases']; ?></div>
-                            <div class="stat-label">Laporan Selesai</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon" style="background: #f59e0b;">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <div>
-                            <div class="stat-number"><?php echo $my_stats['pending_cases']; ?></div>
-                            <div class="stat-label">Laporan Pending</div>
+                            <div class="stat-number"><?php echo $my_stats['month_cases']; ?></div>
+                            <div class="stat-label">Laporan Bulan Ini</div>
                         </div>
                     </div>
                 </div>
@@ -420,7 +385,7 @@ function getStatusInfo($status) {
                 </div>
             </div>
             
-            <!-- Content Grid -->
+            <!-- Grid Konten -->
             <div class="content-grid">
                 <!-- Recent Cases -->
                 <div class="recent-cases">
@@ -463,55 +428,6 @@ function getStatusInfo($status) {
                         </div>
                     <?php endif; ?>
                 </div>
-                
-                <!-- Quick Actions -->
-                <div class="quick-actions">
-                    <div class="section-header">
-                        <h3 class="section-title">Aksi Cepat</h3>
-                    </div>
-                    
-                    <a href="index.php?page=member/cases/create" class="action-btn">
-                        <div class="action-icon">
-                            <i class="fas fa-plus"></i>
-                        </div>
-                        <div>
-                            <div style="font-weight: 600;">Buat Laporan Baru</div>
-                            <div style="font-size: 12px; color: #6b7280;">Laporkan masalah baru</div>
-                        </div>
-                    </a>
-                    
-                    <a href="index.php?page=member/cases" class="action-btn">
-                        <div class="action-icon">
-                            <i class="fas fa-list"></i>
-                        </div>
-                        <div>
-                            <div style="font-weight: 600;">Lihat Laporan Saya</div>
-                            <div style="font-size: 12px; color: #6b7280;">Kelola semua laporan</div>
-                        </div>
-                    </a>
-                    
-                    <a href="index.php?page=member/profile" class="action-btn">
-                        <div class="action-icon">
-                            <i class="fas fa-user-edit"></i>
-                        </div>
-                        <div>
-                            <div style="font-weight: 600;">Edit Profil</div>
-                            <div style="font-size: 12px; color: #6b7280;">Update informasi pribadi</div>
-                        </div>
-                    </a>
-                    
-                    <a href="#" class="action-btn logout-btn">
-                        <div class="action-icon" style="background: #ef4444;">
-                            <i class="fas fa-sign-out-alt"></i>
-                        </div>
-                        <div>
-                            <div style="font-weight: 600;">Keluar</div>
-                            <div style="font-size: 12px; color: #6b7280;">Logout dari sistem</div>
-                        </div>
-                    </a>
-                </div>
+                <!-- Kolom kanan dihilangkan (Aksi Cepat) sesuai permintaan -->
             </div>
         </div>
-    </div>
-</body>
-</html>

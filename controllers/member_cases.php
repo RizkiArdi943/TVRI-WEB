@@ -27,21 +27,30 @@ class MemberCasesController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $title = trim($_POST['title'] ?? '');
             $description = trim($_POST['description'] ?? '');
+            $equipment_name = trim($_POST['equipment_name'] ?? '');
+            $model = trim($_POST['model'] ?? '');
+            $serial_number = trim($_POST['serial_number'] ?? '');
+            $damage_date = trim($_POST['damage_date'] ?? '');
             $location = trim($_POST['location'] ?? '');
-            $priority = $_POST['priority'] ?? 'medium';
-            $category_id = (int)($_POST['category_id'] ?? 1);
+            $damage_condition = $_POST['damage_condition'] ?? 'light';
+            // Samakan default dengan admin
+            $priority = 'medium';
+            $category_id = 1;
 
             // Check session
             if (!isset($_SESSION['user_id'])) {
                 $error = 'Sesi pengguna tidak valid. Silakan login ulang.';
                 error_log('Session check failed: user_id not set');
-            } elseif ($title === '' || $description === '' || $location === '') {
+            } elseif ($title === '' || $description === '' || $equipment_name === '' || $damage_date === '' || $location === '') {
                 $error = 'Semua field wajib diisi!';
-                error_log('Validation failed: title=' . $title . ', description=' . $description . ', location=' . $location);
+                error_log('Validation failed: title=' . $title . ', description=' . $description . ', equipment_name=' . $equipment_name . ', damage_date=' . $damage_date . ', location=' . $location);
+            } elseif (!isset($_FILES['image']) || $_FILES['image']['error'] === UPLOAD_ERR_NO_FILE) {
+                $error = 'Gambar wajib diupload!';
+                error_log('Validation failed: No image uploaded');
             } else {
                 error_log('Validation passed, proceeding with save...');
 
-                // Handle image upload (optional)
+                // Handle image upload (required)
                 $imagePath = null;
                 if (isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE) {
                     $uploadResult = $this->uploadHandler->uploadFile($_FILES['image']);
@@ -53,6 +62,9 @@ class MemberCasesController {
                         $error = $uploadResult['error'];
                         error_log('Upload failed: ' . $error);
                     }
+                } else {
+                    $error = 'Gambar wajib diupload!';
+                    error_log('No image file provided');
                 }
 
                 if (empty($error)) {
@@ -60,10 +72,15 @@ class MemberCasesController {
                     $caseData = [
                         'title' => $title,
                         'description' => $description,
+                        'equipment_name' => $equipment_name,
+                        'model' => $model,
+                        'serial_number' => $serial_number,
+                        'damage_date' => $damage_date,
                         'location' => $location,
+                        'damage_condition' => $damage_condition,
                         'category_id' => $category_id,
-                        'priority' => $priority,
                         'status' => 'pending',
+                        'priority' => $priority,
                         'reported_by' => (int)$_SESSION['user_id'],
                         'assigned_to' => null,
                         'image_path' => $imagePath,

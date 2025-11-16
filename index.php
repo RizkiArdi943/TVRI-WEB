@@ -47,37 +47,64 @@ switch ($page) {
             include 'views/layouts/footer.php';
         } else {
             // Member dashboard
+            include 'views/layouts/header.php';
             include 'views/member/dashboard.php';
+            include 'views/layouts/footer.php';
         }
         break;
         
     case 'cases':
-        include 'views/layouts/header.php';
-        include 'views/cases/index.php';
-        include 'views/layouts/footer.php';
+        if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
+            include 'views/layouts/header.php';
+            include 'views/cases/index.php';
+            include 'views/layouts/footer.php';
+        } else {
+            header('Location: index.php?page=member/cases');
+            exit();
+        }
         break;
         
     case 'cases/create':
-        include 'views/layouts/header.php';
-        include 'views/cases/create.php';
-        include 'views/layouts/footer.php';
+        if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
+            include 'views/layouts/header.php';
+            include 'views/cases/create.php';
+            include 'views/layouts/footer.php';
+        } else {
+            header('Location: index.php?page=member/cases/create');
+            exit();
+        }
         break;
         
     case 'cases/edit':
-        include 'views/layouts/header.php';
-        include 'views/cases/edit.php';
-        include 'views/layouts/footer.php';
+        if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
+            include 'views/layouts/header.php';
+            include 'views/cases/edit.php';
+            include 'views/layouts/footer.php';
+        } else {
+            header('Location: index.php?page=member/cases');
+            exit();
+        }
         break;
         
     case 'cases/view':
-        include 'views/layouts/header.php';
-        include 'views/cases/view.php';
-        include 'views/layouts/footer.php';
+        if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
+            include 'views/layouts/header.php';
+            include 'views/cases/view.php';
+            include 'views/layouts/footer.php';
+        } else {
+            header('Location: index.php?page=member/cases');
+            exit();
+        }
         break;
         
     case 'cases/delete':
-        // Controller-only route (no layout)
-        include 'controllers/cases/delete.php';
+        if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
+            // Controller-only route (no layout)
+            include 'controllers/cases/delete.php';
+        } else {
+            header('Location: index.php?page=member/cases');
+            exit();
+        }
         break;
         
     case 'users':
@@ -110,7 +137,9 @@ switch ($page) {
         
     case 'member/dashboard':
         if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'user') {
+            include 'views/layouts/header.php';
             include 'views/member/dashboard.php';
+            include 'views/layouts/footer.php';
         } else {
             header('Location: index.php?page=login');
             exit();
@@ -119,7 +148,9 @@ switch ($page) {
         
     case 'member/cases':
         if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'user') {
+            include 'views/layouts/header.php';
             include 'views/member/cases/index.php';
+            include 'views/layouts/footer.php';
         } else {
             header('Location: index.php?page=login');
             exit();
@@ -128,7 +159,9 @@ switch ($page) {
         
     case 'member/cases/create':
         if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'user') {
+            include 'views/layouts/header.php';
             include 'views/member/cases/create.php';
+            include 'views/layouts/footer.php';
         } else {
             header('Location: index.php?page=login');
             exit();
@@ -137,7 +170,9 @@ switch ($page) {
         
     case 'member/profile':
         if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'user') {
+            include 'views/layouts/header.php';
             include 'views/member/profile.php';
+            include 'views/layouts/footer.php';
         } else {
             header('Location: index.php?page=login');
             exit();
@@ -166,5 +201,3 @@ switch ($page) {
 // Flush output buffer
 ob_end_flush();
 ?>
-<script src='https://cdn.jotfor.ms/agent/embedjs/01995dd1132d76b89c409a5f5c4e50b3aeea/embed.js'>
-</script>

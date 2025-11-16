@@ -73,16 +73,7 @@ function getPriorityInfo($priority) {
     }
 }
 ?>
-
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Saya - TVRI Kalteng</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/assets/css/style.css">
-    <style>
+<style>
         .member-header {
             background: linear-gradient(135deg, #1e40af, #3b82f6);
             color: white;
@@ -317,28 +308,18 @@ function getPriorityInfo($priority) {
             }
         }
     </style>
-</head>
-<body>
-    <!-- Header -->
-    <div class="member-header">
-        <a href="index.php?page=dashboard" class="back-btn">
-            <i class="fas fa-arrow-left"></i>
-        </a>
-        <h1>Laporan Saya</h1>
-        <p>Kelola semua laporan yang Anda buat</p>
-    </div>
-    
-    <div class="container">
-        <div class="page-header">
-            <div>
-                <h2 class="page-title">Daftar Laporan</h2>
-                <p class="page-subtitle">Total <?php echo count($cases); ?> laporan</p>
-            </div>
-            <a href="index.php?page=member/cases/create" class="create-btn">
-                <i class="fas fa-plus"></i>
-                Buat Laporan Baru
-            </a>
+
+    <!-- Page header seragam dengan admin -->
+    <div class="page-header">
+        <div>
+            <h1>Laporan Saya</h1>
+            <p>Kelola semua laporan yang Anda buat</p>
         </div>
+        <a href="index.php?page=member/cases/create" class="create-btn">
+            <i class="fas fa-plus"></i>
+            Buat Laporan Baru
+        </a>
+    </div>
         
         <!-- Statistics -->
         <div class="stats-grid">
@@ -429,6 +410,4 @@ function getPriorityInfo($priority) {
                 </div>
             <?php endif; ?>
         </div>
-    </div>
-</body>
-</html>
+    

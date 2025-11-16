@@ -1264,11 +1264,13 @@ body {
     
     .chart-container {
         height: 350px;
+        overflow: visible; /* agar label sumbu tidak terpotong */
+        padding: 20px 16px;
     }
     
     .chart-container canvas {
-        height: 250px !important;
-        max-height: 250px !important;
+        height: 260px !important;
+        max-height: 260px !important;
     }
     
     .stats-dropdown {

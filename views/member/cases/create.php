@@ -21,15 +21,6 @@ $categories = $memberCasesController->getCategories();
 
 // Form processing is now handled by MemberCasesController
 ?>
-
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buat Laporan Baru - TVRI Kalteng</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/assets/css/style.css">
     <style>
         .member-header {
             background: linear-gradient(135deg, #1e40af, #3b82f6);
@@ -368,15 +359,15 @@ $categories = $memberCasesController->getCategories();
             }
         }
     </style>
-</head>
-<body>
-    <!-- Header -->
-    <div class="member-header">
-        <a href="index.php?page=dashboard" class="back-btn">
+
+    <!-- Struktur halaman mengikuti admin -->
+    <div class="create-case-page">
+        <div class="page-header">
+            <h1>Tambah Laporan Baru</h1>
+            <a href="index.php?page=member/cases" class="btn btn-outline">
             <i class="fas fa-arrow-left"></i>
+                Kembali
         </a>
-        <h1>Buat Laporan Baru</h1>
-        <p>Laporkan masalah atau keluhan Anda</p>
     </div>
     
     <div class="form-container">
@@ -399,11 +390,6 @@ $categories = $memberCasesController->getCategories();
         <?php endif; ?>
 
         <div class="form-card">
-            <div class="form-title">
-                <i class="fas fa-plus-circle"></i>
-                Form Laporan Baru
-            </div>
-            
             <form method="POST" enctype="multipart/form-data" class="case-form" id="caseForm">
                 <div class="form-group">
                     <label for="title">Judul Laporan *</label>
@@ -417,38 +403,53 @@ $categories = $memberCasesController->getCategories();
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="location">Lokasi *</label>
-                        <input type="text" id="location" name="location" value="<?php echo htmlspecialchars($_POST['location'] ?? ''); ?>" required>
+                            <label for="equipment_name">Nama Peralatan *</label>
+                            <input type="text" id="equipment_name" name="equipment_name" value="<?php echo htmlspecialchars($_POST['equipment_name'] ?? ''); ?>" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="model">Model</label>
+                            <input type="text" id="model" name="model" value="<?php echo htmlspecialchars($_POST['model'] ?? ''); ?>">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="serial_number">S/N</label>
+                            <input type="text" id="serial_number" name="serial_number" value="<?php echo htmlspecialchars($_POST['serial_number'] ?? ''); ?>">
                     </div>
 
                     <div class="form-group">
-                        <label>Kategori</label>
-                        <select id="category_id" name="category_id" required>
-                            <option value="">Pilih Kategori</option>
-                            <?php foreach ($categories as $category): ?>
-                                <option value="<?php echo $category['id']; ?>" 
-                                        <?php echo ($_POST['category_id'] ?? '1') == $category['id'] ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($category['name']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                            <label for="damage_date">Tanggal Kerusakan *</label>
+                            <input type="date" id="damage_date" name="damage_date" value="<?php echo htmlspecialchars($_POST['damage_date'] ?? date('Y-m-d')); ?>" required>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="priority">Prioritas</label>
-                        <select id="priority" name="priority">
-                            <option value="low" <?php echo ($_POST['priority'] ?? 'medium') === 'low' ? 'selected' : ''; ?>>Rendah</option>
-                            <option value="medium" <?php echo ($_POST['priority'] ?? 'medium') === 'medium' ? 'selected' : ''; ?>>Sedang</option>
-                            <option value="high" <?php echo ($_POST['priority'] ?? 'medium') === 'high' ? 'selected' : ''; ?>>Tinggi</option>
+                            <label for="location">Lokasi Transmisi Digital *</label>
+                            <select id="location" name="location" required>
+                                <option value="">Pilih lokasi transmisi</option>
+                                <option value="Transmisi Palangkaraya" <?php echo ($_POST['location'] ?? '') === 'Transmisi Palangkaraya' ? 'selected' : ''; ?>>Transmisi Palangkaraya</option>
+                                <option value="Transmisi Sampit" <?php echo ($_POST['location'] ?? '') === 'Transmisi Sampit' ? 'selected' : ''; ?>>Transmisi Sampit</option>
+                                <option value="Transmisi Pangkalanbun" <?php echo ($_POST['location'] ?? '') === 'Transmisi Pangkalanbun' ? 'selected' : ''; ?>>Transmisi Pangkalanbun</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="damage_condition">Kondisi Kerusakan *</label>
+                            <select id="damage_condition" name="damage_condition" required>
+                                <option value="">Pilih kondisi kerusakan</option>
+                                <option value="light" <?php echo ($_POST['damage_condition'] ?? '') === 'light' ? 'selected' : ''; ?>>Rusak Ringan</option>
+                                <option value="moderate" <?php echo ($_POST['damage_condition'] ?? '') === 'moderate' ? 'selected' : ''; ?>>Rusak Sedang</option>
+                                <option value="severe" <?php echo ($_POST['damage_condition'] ?? '') === 'severe' ? 'selected' : ''; ?>>Rusak Berat</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="image">Gambar (opsional)</label>
-                    <input type="file" id="image" name="image" accept="image/*">
+                        <label for="image">Gambar *</label>
+                        <input type="file" id="image" name="image" accept="image/*" required>
                     <small class="form-hint">Format: JPG, PNG, WEBP. Maksimal 5MB.</small>
                 </div>
                 
@@ -463,6 +464,7 @@ $categories = $memberCasesController->getCategories();
                     </a>
                 </div>
             </form>
+        </div>
         </div>
     </div>
 
@@ -661,35 +663,4 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('All event listeners registered successfully');
 }); // Close DOMContentLoaded
 </script>
-</body>
-</html>
-<body>
-    <!-- Header -->
-    <div class="member-header">
-        <a href="index.php?page=dashboard" class="back-btn">
-            <i class="fas fa-arrow-left"></i>
-        </a>
-        <h1>Buat Laporan Baru</h1>
-        <p>Laporkan masalah atau keluhan Anda</p>
-    </div>
-    
-    <div class="form-container">
-        <!-- Toast Notification Container -->
-        <div id="toast-container" class="toast-container"></div>
-
-        <!-- Alert Messages (fallback) -->
-        <?php if ($success): ?>
-            <div class="alert alert-success">
-                <i class="fas fa-check-circle"></i>
-                <?php echo $success; ?>
-            </div>
-        <?php endif; ?>
-
-        <?php if ($error): ?>
-            <div class="alert alert-error">
-                <i class="fas fa-exclamation-circle"></i>
-                <?php echo $error; ?>
-            </div>
-        <?php endif; ?>
-
 

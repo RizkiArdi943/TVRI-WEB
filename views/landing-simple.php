@@ -838,6 +838,50 @@ function getStatusColor($status) {
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Extra small mobile optimizations */
+        @media (max-width: 480px) {
+            body {
+                padding-top: 96px; /* pastikan header tidak menutupi konten */
+            }
+            .header {
+                padding: 10px 10px;
+                gap: 6px;
+                overflow: visible;
+            }
+            .logo {
+                margin-left: 0;
+                gap: 4px;
+                flex: 1;
+                min-width: 0; /* beri ruang ke tombol */
+            }
+            .logo-image,
+            .tvri-logo {
+                height: 50px;
+                max-width: 40vw; /* lebih kecil agar tombol aman */
+                object-fit: contain;
+            }
+            .login-btn {
+                padding: 8px 12px;
+                font-size: 12px;
+                white-space: nowrap;
+                flex-shrink: 0; /* jangan terpotong di sisi kanan */
+                margin-right: 4px;
+            }
+            .main-title { margin-top: 16px; }
+            .title-line-1 { font-size: 20px; }
+            .title-line-2 { font-size: 16px; }
+            .title-line-3 { font-size: 14px; padding: 0 6px; }
+            .search-container { max-width: 100%; padding: 0 4px; }
+            .content-area { padding: 18px; border-radius: 16px; }
+            .stats-grid, .quick-actions { gap: 12px; }
+        }
+
+        @media (max-width: 360px) {
+            .logo-image,
+            .tvri-logo { height: 46px; max-width: 38vw; }
+            .login-btn { padding: 8px 10px; font-size: 11px; }
+        }
     </style>
 </head>
 <body>

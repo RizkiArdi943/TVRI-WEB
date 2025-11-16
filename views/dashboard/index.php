@@ -328,6 +328,7 @@ function initializeCharts() {
     options: {
         responsive: true,
                 maintainAspectRatio: false,
+        layout: { padding: { left: 8, right: 8, top: 8, bottom: 8 } },
         plugins: {
             legend: {
                 display: false
@@ -350,10 +351,17 @@ function initializeCharts() {
                     },
                     x: {
                         ticks: {
+                            autoSkip: true,
+                            maxRotation: 0,
+                            minRotation: 0,
                             color: '#333333',
                             font: {
                                 family: 'Poppins',
                                 size: 12
+                            },
+                            callback: (value) => {
+                                const label = data.chart1.labels[value] ?? '';
+                                return label.length > 12 ? label.slice(0, 12) + '…' : label;
                             }
                         },
                         grid: {
@@ -388,6 +396,7 @@ function initializeCharts() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                layout: { padding: { left: 8, right: 8, top: 8, bottom: 8 } },
                 plugins: {
                     legend: {
                         display: data.chart1.type === 'pie' || data.chart1.type === 'doughnut',
@@ -400,6 +409,18 @@ function initializeCharts() {
                         ticks: {
                             stepSize: 1
                         }
+                    },
+                    x: {
+                        ticks: {
+                            autoSkip: true,
+                            maxRotation: 0,
+                            minRotation: 0,
+                            callback: (value) => {
+                                const label = data.chart1.labels[value] ?? '';
+                                return label.length > 12 ? label.slice(0, 12) + '…' : label;
+                            }
+                        },
+                        grid: { display: false }
                     }
                 } : {},
                 animation: {
@@ -449,6 +470,7 @@ function initializeCharts() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                layout: { padding: { left: 8, right: 8, top: 8, bottom: 8 } },
                 plugins: {
                     legend: {
                         display: true,
@@ -481,10 +503,17 @@ function initializeCharts() {
                     },
                     x: {
                         ticks: {
+                            autoSkip: true,
+                            maxRotation: 0,
+                            minRotation: 0,
                             color: '#333333',
                             font: {
                                 family: 'Poppins',
                                 size: 12
+                            },
+                            callback: (value) => {
+                                const label = data.chart2.labels[value] ?? '';
+                                return label.length > 12 ? label.slice(0, 12) + '…' : label;
                             }
                         },
                         grid: {
@@ -519,6 +548,7 @@ function initializeCharts() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                layout: { padding: { left: 8, right: 8, top: 8, bottom: 8 } },
                 plugins: {
                     legend: {
                         display: data.chart2.type === 'pie' || data.chart2.type === 'doughnut',
@@ -531,6 +561,18 @@ function initializeCharts() {
                         ticks: {
                             stepSize: 1
                         }
+                    },
+                    x: {
+                        ticks: {
+                            autoSkip: true,
+                            maxRotation: 0,
+                            minRotation: 0,
+                            callback: (value) => {
+                                const label = data.chart2.labels[value] ?? '';
+                                return label.length > 12 ? label.slice(0, 12) + '…' : label;
+                            }
+                        },
+                        grid: { display: false }
                     }
                 } : {},
                 animation: {
